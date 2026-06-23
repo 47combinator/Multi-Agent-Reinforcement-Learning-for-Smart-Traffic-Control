@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Results and models
+ppo/results/
+*.zip
+*.csv
+tensorboard_logs/
+
+# SUMO temp files
+*.rou.alt.xml
