@@ -62,9 +62,9 @@ The trained PPO policy was evaluated over 10 full episodes and compared against 
 
 | Metric | PPO Agent | Fixed-Time Baseline | Improvement |
 | :--- | :--- | :--- | :--- |
-| **Mean Episode Reward** | `-17.02` | `-131.91` | 🏆 **+87%** |
-| **Mean Waiting Time** | `592.12s` | `669.82s` | 🚀 **-11.6%** |
-| **Mean Queue Length** | `30.27` | `28.68` | ⚖️ +5.5% (similar) |
+| **Mean Episode Reward** | `-17.02` | `-131.91` |  **+87%** |
+| **Mean Waiting Time** | `592.12s` | `669.82s` |  **-11.6%** |
+| **Mean Queue Length** | `30.27` | `28.68` | +5.5% (similar) |
 
 ![Evaluation Comparison](assets/eval_comparison.png)
 
