@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch checkpoints
+*.pth
+*.pth.tar
+
+# TensorBoard logs
+tensorboard_logs/
+runs/
+
+# Results and Plots
+results/
+results_dqn/
+results_qlearning/
+results_ppo/
+*.csv
+*.json
+
+# OS files
+.DS_Store
+Thumbs.db
