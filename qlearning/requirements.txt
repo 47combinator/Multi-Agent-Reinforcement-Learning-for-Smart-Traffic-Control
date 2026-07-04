@@ -1,0 +1,31 @@
+# Q-Learning Traffic Signal Controller — Requirements
+# =============================================
+# Install with: pip install -r requirements.txt
+
+# ── Core RL ──────────────────────────────────────────────────────────
+gymnasium>=0.29.0               # Gymnasium Env base class
+
+# ── Neural Networks ───────────────────────────────────────────────────
+torch>=2.0.0                    # PyTorch for Actor-Critic networks
+
+# ── Data & Numerics ───────────────────────────────────────────────────
+numpy>=1.24.0                   # Array operations, normalization
+
+# ── Visualization ─────────────────────────────────────────────────────
+matplotlib>=3.7.0               # Training curves, evaluation plots
+
+# ── Configuration ─────────────────────────────────────────────────────
+pyyaml>=6.0                     # Hyperparameter YAML loading
+
+# ── SUMO / TraCI ─────────────────────────────────────────────────────
+# TraCI is installed with SUMO and found via SUMO_HOME.
+# No pip install needed — set SUMO_HOME environment variable instead.
+# SUMO_HOME = path to your SUMO installation (e.g., D:\projects)
+# TraCI path: $SUMO_HOME/tools/traci
+
+# ── Optional (for TensorBoard visualization) ──────────────────────────
+tensorboard>=2.13.0             # pip install tensorboard
+                                # Usage: tensorboard --logdir results/tensorboard_logs
+
+# ── Development ───────────────────────────────────────────────────────
+# pytest>=7.0.0                 # uncomment if writing unit tests
