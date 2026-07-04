@@ -132,7 +132,7 @@ class TrafficEnv(gym.Env):
         gamma (float)      : Throughput reward weight.
     """
 
-    # SB3 requires metadata for rendering
+    # Requires metadata for rendering
     metadata = {"render_modes": ["human"], "render_fps": 30}
 
     def __init__(
@@ -220,7 +220,7 @@ class TrafficEnv(gym.Env):
             5. Return first observation
 
         Args:
-            seed    : Optional seed override (used by SB3's VecEnv).
+            seed    : Optional seed override .
             options : Unused (Gymnasium API requirement).
 
         Returns:
@@ -311,7 +311,7 @@ class TrafficEnv(gym.Env):
         # terminated: SUMO simulation reached its end naturally
         terminated = traci.simulation.getMinExpectedNumber() <= 0
 
-        # truncated: we ran out of steps (SB3 handles this as a time limit)
+        # truncated: we ran out of steps 
         truncated = self._step_count >= self.max_steps
 
         # ── 8. Build info dict ────────────────────────────────────────────

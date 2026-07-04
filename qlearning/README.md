@@ -4,7 +4,7 @@ A standalone, completely independent Q-Learning Reinforcement Learning architect
 
 ## Project Overview
 
-This project implements a custom Q-Learning tabular agent to optimize traffic light phases. Unlike continuous state-space models like PPO that rely on deep neural networks, this architecture discretizes the continuous state space extracted from the environment and maps it to a discrete action space using a Q-Table. 
+This project implements a custom Q-Learning tabular agent to optimize traffic light phases. Unlike continuous state-space continuous state-space models that rely on deep neural networks, this architecture discretizes the continuous state space extracted from the environment and maps it to a discrete action space using a Q-Table. 
 
 It explores traffic patterns using an epsilon-greedy policy and iteratively updates its action-value estimates using the Bellman Equation to minimize traffic wait times and queue lengths.
 

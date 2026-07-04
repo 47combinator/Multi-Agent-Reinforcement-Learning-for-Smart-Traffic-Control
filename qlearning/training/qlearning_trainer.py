@@ -81,7 +81,7 @@ class QLearningTrainer:
         # Setup TensorBoard writer
         self.writer = SummaryWriter(log_dir=str(self.log_dir))
 
-        # Setup SB3-compatible Monitor CSV for visualization plotter
+        # Setup Monitor CSV for visualization plotter
         self._setup_monitor()
 
     def _setup_dirs(self) -> None:
@@ -95,9 +95,9 @@ class QLearningTrainer:
             d.mkdir(parents=True, exist_ok=True)
 
     def _setup_monitor(self) -> None:
-        """Create a monitor.csv compatible with SB3's plotting utilities."""
+        """Create a monitor.csv compatible with plotting utilities."""
         self.monitor_path = self.monitor_dir / "monitor.csv"
-        # Write SB3 header (comment line + csv header)
+        # Write monitor header (comment line + csv header)
         with open(self.monitor_path, "w", newline="") as f:
             f.write('# {"t_start": 0.0, "env_id": "TrafficEnv"}\n')
             writer = csv.writer(f)
@@ -114,7 +114,7 @@ class QLearningTrainer:
     def train(self) -> Dict[str, QLearningAgent]:
         """
         Run the Q-Learning training loop.
-        Returns a dict of agents (supporting multi-agent setups).
+        Returns a dict of agents (accommodating multi-agent setups).
         """
         logger.info("=" * 60)
         logger.info("Starting Q-Learning Traffic Signal Controller Training")
@@ -132,7 +132,7 @@ class QLearningTrainer:
 
         # Initialize Q-Learning agent
         # The environment returns a dict if multi-agent, but we know it's a single agent
-        # We will wrap it in a dict to support future multi-agent
+        # We will wrap it in a dict to accommodate future multi-agent
         agents: Dict[str, QLearningAgent] = {
             "center": QLearningAgent(
                 action_space_n=env.action_space.n,

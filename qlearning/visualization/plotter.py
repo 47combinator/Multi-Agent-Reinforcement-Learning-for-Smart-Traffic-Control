@@ -111,7 +111,7 @@ class TrafficPlotter:
         Plot the training reward curve with EMA smoothing.
 
         Args:
-            timesteps     : X-axis: environment steps (from SB3 monitor).
+            timesteps     : X-axis: environment steps (from monitor).
             rewards       : Y-axis: episode mean rewards.
             eval_timesteps: X positions of evaluation points.
             eval_rewards  : Evaluation mean rewards.
@@ -120,7 +120,7 @@ class TrafficPlotter:
             Path to saved PNG.
         """
         fig, ax = plt.subplots(figsize=(12, 5))
-        fig.suptitle("PPO Training — Episode Reward Curve", y=1.01, fontsize=16,
+        fig.suptitle("Q-Learning Training — Episode Reward Curve", y=1.01, fontsize=16,
                      color="#e8eaf0", fontweight="bold")
 
         # Raw rewards (transparent)
@@ -359,7 +359,7 @@ class TrafficPlotter:
         ax.set_xlim(0, 16)
         ax.set_ylim(0, 7)
         ax.axis("off")
-        fig.suptitle("PPO Traffic Controller — System Architecture & Data Flow",
+        fig.suptitle("Q-Learning Traffic Controller — System Architecture & Data Flow",
                      fontsize=15, color="#e8eaf0", fontweight="bold", y=0.98)
 
         def draw_box(x, y, w, h, label, sublabel="", color="#2a3550"):
@@ -413,9 +413,9 @@ class TrafficPlotter:
         # State + Reward → Gym Env
         arrow(9.3, 4.5, 10.2, 3.8, "obs", color=C_GREEN)
         arrow(9.3, 2.0, 10.2, 3.2, "reward", color=C_RED)
-        # Gym Env → PPO Agent
+        # Gym Env → Q-Learning Agent
         arrow(12.5, 3.5, 13.0, 3.5, "(s,r,done)")
-        # PPO Agent → Gym Env (action)
+        # Q-Learning Agent → Gym Env (action)
         ax.annotate("", xy=(12.5, 3.1), xytext=(13.0, 3.1),
                     arrowprops=dict(arrowstyle="->", color=C_PURPLE, lw=2.0))
         ax.text(12.75, 2.85, "action", ha="center", color=C_PURPLE, fontsize=8.5)
@@ -450,13 +450,13 @@ class TrafficPlotter:
 
     def plot_all_from_monitor(self, monitor_csv_path: str) -> None:
         """
-        Read SB3 Monitor CSV and generate all training plots.
+        Read Monitor CSV and generate all training plots.
 
-        SB3's Monitor wrapper writes a CSV with columns:
+        The Monitor wrapper writes a CSV with columns:
             r (episode reward), l (episode length), t (elapsed time).
 
         Args:
-            monitor_csv_path: Path to monitor.csv (written by SB3 Monitor).
+            monitor_csv_path: Path to monitor.csv (written by Monitor).
         """
         import csv
 
@@ -465,7 +465,7 @@ class TrafficPlotter:
         cumsteps = 0
 
         with open(monitor_csv_path, "r") as f:
-            # Skip SB3 header comment line (#...)
+            # Skip header comment line (#...)
             lines = [l for l in f if not l.startswith("#")]
         reader = csv.DictReader(lines)
         for row in reader:

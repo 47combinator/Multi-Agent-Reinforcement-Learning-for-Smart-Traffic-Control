@@ -187,7 +187,7 @@ class RewardCalculator:
     def get_info_dict(self, current_metrics: dict, reward_components: dict) -> dict:
         """
         Build the 'info' dict returned by env.step().
-        SB3 uses this for logging and EvalCallback.
+        Used for logging.
 
         Args:
             current_metrics   : From StateExtractor.get_raw_metrics()

@@ -21,7 +21,7 @@ class QLearningAgent:
     """
     A tabular Q-Learning agent with epsilon-greedy exploration.
 
-    Supports state discretization for continuous state spaces.
+    Accommodates state discretization for continuous state spaces.
     Designed to manage a single independent Q-table. For multi-agent
     scenarios, instantiate one QLearningAgent per traffic signal.
     """

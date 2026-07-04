@@ -6,7 +6,7 @@
 gymnasium>=0.29.0               # Gymnasium Env base class
 
 # ── Neural Networks ───────────────────────────────────────────────────
-torch>=2.0.0                    # PyTorch for Actor-Critic networks
+torch>=2.0.0                    # PyTorch (used for tensorboard logging and seeding)
 
 # ── Data & Numerics ───────────────────────────────────────────────────
 numpy>=1.24.0                   # Array operations, normalization

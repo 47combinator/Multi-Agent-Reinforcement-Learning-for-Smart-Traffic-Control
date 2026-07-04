@@ -1,0 +1,10 @@
+results/checkpoints/
+results/final_model/
+results/logs/
+results/tensorboard_logs/
+results/plots/
+results/evaluation_results.csv
+results/evaluation_results.json
+__pycache__/
+*.pyc
+.DS_Store
