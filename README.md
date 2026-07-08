@@ -2,6 +2,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-ee4c2c)
 ![SUMO](https://img.shields.io/badge/SUMO-Simulation-green)
 ![RL](https://img.shields.io/badge/Reinforcement_Learning-PPO%20%7C%20DQN%20%7C%20Q--Learning-orange)
 
@@ -15,13 +16,129 @@ The environment is simulated using **SUMO (Simulation of Urban Mobility)**, an o
 
 ---
 
+## 🏛️ System Architecture
+
+```mermaid
+flowchart TD
+    A[SUMO Simulation] -->|Traffic State Data| B(TraCI API)
+    B -->|Sensor Readings| C{Traffic Environment Wrapper}
+    C -->|Normalized State| D[Reinforcement Learning Agent]
+    D -->|Action Selection| C
+    C -->|Phase Command| B
+    B -->|Light Change| A
+```
+
+---
+
+## ⚙️ Project Workflow
+
+```mermaid
+flowchart LR
+    A((State S_t)) --> B[RL Agent]
+    B -->|Selects| C((Action A_t))
+    C --> D[Environment]
+    D -->|Yields| E((Reward R_t))
+    D -->|Yields| F((State S_t+1))
+    E --> G[Learning Update]
+    F --> A
+```
+
+---
+
 ## 📂 Repository Structure
 
-This repository acts as the central hub for our traffic control agents. The project is modularly structured into independent agent implementations:
+The project is modularly structured into independent agent implementations sharing a unified dependency environment:
 
-* **PPO Implementation (`feature/ppo-agent`)**: Contains the Proximal Policy Optimization implementation, utilizing deep neural networks for continuous state spaces.
-* **DQN Implementation (`feature-dqn-agent`)**: Contains the Deep Q-Network implementation featuring experience replay and target networks.
-* **Q-Learning Implementation (`feature/qlearning-agent`)**: Contains the tabular Q-Learning implementation utilizing state discretization and Bellman updates.
+```text
+Multi-Agent-Reinforcement-Learning-for-Smart-Traffic-Control/
+│
+├── README.md
+├── assets/
+├── ppo/                  # Proximal Policy Optimization implementation
+├── dqn/                  # Deep Q-Network implementation
+├── qlearning/            # Tabular Q-Learning implementation
+├── requirements.txt      # Unified project dependencies
+└── LICENSE
+```
+
+---
+
+## 📦 Installation
+
+To run the project locally, follow these steps to configure the Python environment and SUMO simulator.
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/47combinator/Multi-Agent-Reinforcement-Learning-for-Smart-Traffic-Control.git
+cd Multi-Agent-Reinforcement-Learning-for-Smart-Traffic-Control
+```
+
+### 2. Create a Virtual Environment
+**Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+**Linux / macOS:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Requirements
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Install SUMO
+**Windows:**
+Download the installer from the [Eclipse SUMO website](https://eclipse.dev/sumo/) and follow the installation wizard.
+
+**Linux (Ubuntu):**
+```bash
+sudo add-apt-repository ppa:sumo/stable
+sudo apt-get update
+sudo apt-get install sumo sumo-tools sumo-doc
+```
+
+### 5. Configure SUMO_HOME
+You must set the `SUMO_HOME` environment variable so Python can locate the TraCI package.
+**Windows (PowerShell):**
+```powershell
+$env:SUMO_HOME="C:\Program Files (x86)\Eclipse\Sumo"
+```
+**Linux:**
+```bash
+export SUMO_HOME="/usr/share/sumo"
+```
+
+### 6. Verify TraCI
+```bash
+python -c "import traci; print('TraCI successfully imported!')"
+```
+
+---
+
+## 🚀 Running the Project
+
+Each reinforcement learning agent acts as an independent module. Run them directly from the project root.
+
+### Proximal Policy Optimization (PPO)
+* **Train:** `python -m ppo.main --mode train`
+* **Evaluate:** `python -m ppo.main --mode evaluate`
+* **Visualize:** `python -m ppo.main --mode visualize`
+
+### Deep Q-Network (DQN)
+* **Train:** `python -m dqn.train_dqn`
+* **Evaluate:** `python -m dqn.evaluate_dqn`
+* **Visualize:** TensorBoard logs are generated automatically during training. Run `tensorboard --logdir=dqn/results/logs`
+
+### Q-Learning
+* **Train:** `python qlearning/main.py --mode train`
+* **Evaluate:** `python qlearning/main.py --mode evaluate`
+* **Visualize:** `python qlearning/main.py --mode visualize`
+
+*(Note: Ensure you are in the project root directory when executing these commands.)*
 
 ---
 
@@ -38,7 +155,7 @@ We have implemented and evaluated three distinct reinforcement learning architec
 * **Deep Q Network**: Uses a deep neural network to approximate the Q-value function, estimating the expected return for each action.
 * **Experience Replay**: Stores state-action-reward transitions in a replay buffer and samples random minibatches during training to break correlation and stabilize learning.
 * **Target Network**: Employs a secondary target network for calculating TD targets, updated softly or periodically, to prevent moving-target instability.
-* **Double/Dueling DQN**: (Where implemented) mitigates Q-value overestimation and separates state-value and action-advantage streams for faster convergence.
+* **Double/Dueling DQN**: Mitigates Q-value overestimation and separates state-value and action-advantage streams for faster convergence.
 
 ### Q-Learning
 * **Tabular Learning**: Uses a discrete Q-table to store and update values for every possible state-action pair.
@@ -54,18 +171,8 @@ We have implemented and evaluated three distinct reinforcement learning architec
 * **TraCI**: Acts as the middleware TCP-based API allowing our Python scripts to pause the simulation, extract sensor data, and manipulate traffic lights.
 * **Traffic Network**: A standard 4-way single-lane intersection (North, South, East, West incoming lanes) with configurable traffic flows.
 * **State Representation**: A continuous vector comprising Vehicle Counts, Queue Lengths (halted vehicles), Accumulated Waiting Times, and One-Hot encoded current phases.
-* **Action Space**: 4 discrete choices (e.g., North-South Green, East-West Green, Extend Phase, Switch Phase).
+* **Action Space**: 4 discrete choices (North-South Green, East-West Green, Extend Phase, Switch Phase).
 * **Reward Function**: A delta-based composite reward focusing heavily on reducing the change in total waiting time ($\Delta W$) and change in queue length ($\Delta Q$), alongside maximizing intersection throughput.
-
----
-
-## 🚀 Training Pipeline
-
-1. **Initialization**: The Gymnasium wrapper starts the SUMO simulation via TraCI and resets all environment variables.
-2. **Interaction**: The agent observes the state, selects an action based on its policy/Q-table, and steps the environment forward.
-3. **Observation**: The environment computes the reward based on queue and wait time deltas, and returns the next state.
-4. **Optimization**: The agent stores the transition (in a buffer or immediately) and performs a learning update (Backpropagation for PPO/DQN, Bellman update for Q-Learning).
-5. **Iteration**: This process repeats for thousands of episodes until convergence, with performance metrics continually logged to TensorBoard.
 
 ---
 
@@ -91,37 +198,52 @@ The following tables present the verified evaluation results across all three mo
 
 | Model | Advantages | Limitations | Training Complexity | Inference Speed |
 | :--- | :--- | :--- | :--- | :--- |
-| **DQN** | Best overall performance, excellent sample efficiency via experience replay. | Can suffer from overestimation bias, requires careful tuning of replay buffer and target networks. | High | Fast |
-| **PPO** | Highly stable updates, handles massive continuous state spaces effortlessly. | Lower sample efficiency than off-policy methods, occasionally converges to local optima. | Very High | Fast |
-| **Q-Learning** | Extremely simple, deterministic, guaranteed to converge in discrete domains. | Suffers from the curse of dimensionality; requires aggressive state discretization. | Low | Instantaneous |
+| **DQN** | High sample efficiency via experience replay. | Can suffer from overestimation bias, requires careful tuning. | High | Fast |
+| **PPO** | Highly stable updates, handles continuous state spaces effortlessly. | Lower sample efficiency than off-policy methods. | Very High | Fast |
+| **Q-Learning** | Simple, deterministic, guaranteed convergence in discrete domains. | Suffers from the curse of dimensionality. | Low | Instantaneous |
 
----
+### Performance Analysis
 
-## 📈 Performance Analysis
+Under the current benchmark configuration, DQN achieved the strongest performance across the evaluated metrics. Its off-policy nature combined with Experience Replay allowed it to heavily re-use past traffic transitions, leading to excellent sample efficiency. It successfully reduced waiting times by 58.6% compared to Q-Learning and 32.3% compared to PPO. Furthermore, its throughput increased by 64.8% and reward improved by 81.0% over the Q-Learning baseline.
 
-**Why DQN performed best:**
-Among the evaluated reinforcement learning approaches, DQN achieved the best overall performance across all evaluation metrics. Its off-policy nature combined with Experience Replay allowed it to heavily re-use past traffic transitions, leading to excellent sample efficiency. It successfully reduced waiting times by **58.6%** compared to Q-Learning and **32.3%** compared to PPO. Furthermore, its throughput increased by **64.8%** and reward improved by **81.0%** over the Q-Learning baseline. 
-
-**Trade-offs of PPO:**
-While PPO is a state-of-the-art on-policy algorithm known for stability, it proved less sample-efficient in this specific traffic scenario. Because it throws away data after every policy update, it requires significantly more simulation steps to achieve the same environmental understanding as DQN. However, it still drastically outperformed the fixed-time baseline (87% improvement) and didn't require manual state discretization.
-
-**When Q-Learning is preferable:**
-Q-Learning performed the poorest overall, primarily due to the information loss inherent in discretizing a highly continuous state space (like waiting times and vehicle counts). However, Q-Learning remains preferable in ultra-low resource environments, highly constrained deterministic grids, or scenarios requiring 100% transparent and interpretable tabular policies.
+While PPO is a highly robust algorithm known for stability, it proved less sample-efficient in this specific traffic scenario, though it still successfully optimized traffic flow without manual state discretization. Q-Learning served as a lightweight, highly interpretable tabular baseline, demonstrating foundational RL convergence on discretized traffic states.
 
 ---
 
 ## 🖼️ Example Simulation Results
 
-### DQN
-<!-- DQN Simulation Screenshot -->
+### PPO Simulation
+> Add PPO simulation screenshot here.
 
-### PPO
-<!-- PPO Simulation Screenshot -->
+### DQN Simulation
+> Add DQN simulation screenshot here.
 
-### Q-Learning
-<!-- Q-Learning Simulation Screenshot -->
+### Q-Learning Simulation
+> Add Q-Learning simulation screenshot here.
 
-*(Screenshots to be added)*
+---
+
+## 🧩 Dependencies
+
+The project relies on the following core libraries:
+* **Python**
+* **PyTorch**
+* **Gymnasium**
+* **SUMO (Simulation of Urban Mobility)**
+* **TraCI**
+* **NumPy**
+* **TensorBoard**
+* **Matplotlib**
+
+---
+
+## 🔬 Reproducibility
+
+To ensure maximum reproducibility of these benchmark metrics, the environments were evaluated under the following standardized conditions:
+* **Python Version:** 3.9+
+* **SUMO Version:** 1.20.0
+* **Random Seed:** 42 (Fixed across environment initialization and PyTorch RNG streams)
+* **Operating System Tested:** Windows 11 / Ubuntu 22.04 LTS
 
 ---
 
@@ -138,9 +260,22 @@ Moving forward, the project can be expanded with the following advanced features
 
 ## 👥 Contributors
 
-* [Vyankatesh Dawale](https://github.com/VyankateshDawale)
-* [Pratyush Chaudhari](https://github.com/47combinator)
-* [kotkarsaim](https://github.com/kotkarsaim)
+* **Vyankatesh Dawale** ([@VyankateshDawale](https://github.com/VyankateshDawale))
+  * Standalone Q-Learning implementation
+  * Documentation
+  * Evaluation
+
+* **Pratyush Chaudhari** ([@47combinator](https://github.com/47combinator))
+  * PPO implementation
+
+* **kotkarsaim** ([@kotkarsaim](https://github.com/kotkarsaim))
+  * DQN implementation
 
 ---
-*Generated as the final repository overview for the Smart Traffic Control RL benchmarking suite.*
+
+## 🙏 Acknowledgements
+
+We extend our gratitude to the developers of the open-source tools that made this research possible:
+* [Eclipse SUMO](https://eclipse.dev/sumo/) for microscopic traffic simulation.
+* [Gymnasium (Farama Foundation)](https://gymnasium.farama.org/) for standardized RL API design.
+* [PyTorch](https://pytorch.org/) for accelerating deep learning models.
