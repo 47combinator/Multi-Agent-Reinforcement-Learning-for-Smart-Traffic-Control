@@ -138,6 +138,7 @@ Moving forward, the project can be expanded with the following advanced features
 
 ## 👥 Contributors
 
+* [Vyankatesh Dawale](https://github.com/VyankateshDawale)
 * [Pratyush Chaudhari](https://github.com/47combinator)
 * [kotkarsaim](https://github.com/kotkarsaim)
 
