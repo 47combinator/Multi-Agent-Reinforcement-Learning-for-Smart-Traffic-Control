@@ -318,7 +318,7 @@ class DQNAgent:
 
     def load(self, filepath: str):
         """Load model weights."""
-        checkpoint = torch.load(filepath, map_location=self.device)
+        checkpoint = torch.load(filepath, map_location=self.device, weights_only=False)
         self.qnetwork_local.load_state_dict(checkpoint["qnetwork_local_state_dict"])
         self.qnetwork_target.load_state_dict(checkpoint["qnetwork_target_state_dict"])
         if "optimizer_state_dict" in checkpoint:

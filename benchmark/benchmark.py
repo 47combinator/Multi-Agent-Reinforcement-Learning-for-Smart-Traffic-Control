@@ -211,7 +211,7 @@ def run_dqn(n_episodes: int, seed: int, port: int = 8835) -> dict:
         from models.dqn import DQNAgent
         from config import ENV_CONFIG, DQN_CONFIG
 
-        model_path = dqn_root / "results" / "best_model" / "best_model.pth"
+        model_path = dqn_root / "results_dqn" / "best_model" / "best_dqn_model.pth"
         if not model_path.exists():
             print("  [DQN] No saved model found — skipping.")
             return None
@@ -225,7 +225,7 @@ def run_dqn(n_episodes: int, seed: int, port: int = 8835) -> dict:
         import torch
         obs_dim    = 8
         n_actions  = 4
-        agent = DQNAgent(obs_dim=obs_dim, n_actions=n_actions, config=DQN_CONFIG)
+        agent = DQNAgent(state_size=obs_dim, action_size=n_actions, config=DQN_CONFIG)
         agent.load(str(model_path))
         agent.set_evaluation()
 
@@ -305,7 +305,7 @@ def plot_comparison(all_results: dict, save_path: Path):
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
-    print(f"\n[Benchmark] Comparison plot saved → {save_path}")
+    print(f"\n[Benchmark] Comparison plot saved -> {save_path}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -362,7 +362,7 @@ def main():
     out = {k: v for k, v in all_results.items() if v is not None}
     with open(PLOTS_DIR / "benchmark_results.json", "w") as f:
         json.dump(out, f, indent=2)
-    print(f"[Benchmark] Results saved → {PLOTS_DIR / 'benchmark_results.json'}")
+    print(f"[Benchmark] Results saved -> {PLOTS_DIR / 'benchmark_results.json'}")
 
 
 if __name__ == "__main__":
