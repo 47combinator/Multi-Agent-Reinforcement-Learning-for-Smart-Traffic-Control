@@ -1,0 +1,26 @@
+{
+  "PPO": {
+    "mean_reward": -23.85,
+    "std_reward": 28.082552946625057,
+    "mean_wait_time": 593.1873611111112,
+    "mean_queue": 30.23083333333333
+  },
+  "Q-Learning": {
+    "mean_reward": -71.41199999999999,
+    "std_reward": 10.937322158554172,
+    "mean_wait_time": 519.0043055555556,
+    "mean_queue": 26.531111111111112
+  },
+  "DQN": {
+    "mean_reward": 91.31999999999974,
+    "std_reward": 4.528310943387246,
+    "mean_wait_time": 522.2394444444444,
+    "mean_queue": 26.741805555555555
+  },
+  "Fixed-Time": {
+    "mean_reward": -96.455,
+    "std_reward": 4.682275621959915,
+    "mean_wait_time": 575.8411111111111,
+    "mean_queue": 27.299861111111106
+  }
+}
