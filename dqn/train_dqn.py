@@ -1,4 +1,4 @@
-﻿"""
+"""
 train_dqn.py — Deep Q-Network Training Pipeline
 ==============================================
 
@@ -144,7 +144,7 @@ def main():
     # Resume Training
     if args.resume:
         logger.info(f"Resuming training from checkpoint: {args.resume}")
-        checkpoint = torch.load(args.resume, map_location=agent.device)
+        checkpoint = torch.load(args.resume, map_location=agent.device, weights_only=False)
         agent.qnetwork_local.load_state_dict(checkpoint['qnetwork_local_state_dict'])
         agent.qnetwork_target.load_state_dict(checkpoint['qnetwork_target_state_dict'])
         agent.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
