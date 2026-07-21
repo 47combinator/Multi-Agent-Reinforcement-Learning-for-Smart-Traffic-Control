@@ -152,7 +152,7 @@ def run_qlearning(n_episodes: int, seed: int, port: int = 8825) -> dict:
         from environment.traffic_env import TrafficEnv as QLTrafficEnv
         from agent.qlearning_agent import QLearningAgent
 
-        model_path = ql_root / "results" / "best_model" / "q_model_center.json"
+        model_path = ROOT / "qlearning" / "results" / "best_model" / "q_model_center.json"
         if not model_path.exists():
             print("  [Q-Learning] No saved model found — skipping.")
             return None
@@ -161,7 +161,9 @@ def run_qlearning(n_episodes: int, seed: int, port: int = 8825) -> dict:
         agent.load(str(model_path))
         agent.is_training = False  # deterministic greedy mode
 
-        ql_cfg = str(ql_root / "sumo_files" / "single_intersection.sumocfg")
+        # Q-Learning uses its own sumocfg (state extractor may differ)
+        ql_cfg_candidate = ql_root / "sumo_files" / "single_intersection.sumocfg"
+        ql_cfg = str(ql_cfg_candidate) if ql_cfg_candidate.exists() else SUMO_ENV_CFG
         results = {"rewards": [], "wait_times": [], "queues": []}
 
         for ep in range(n_episodes):
@@ -311,9 +313,10 @@ def plot_comparison(all_results: dict, save_path: Path):
 # ─────────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(description="Unified MARL Benchmark")
-    parser.add_argument("--episodes", type=int, default=5, help="Episodes per agent")
-    parser.add_argument("--seed",     type=int, default=42,  help="Base seed")
-    parser.add_argument("--skip-fixed-time", action="store_true", help="Skip fixed-time baseline")
+    parser.add_argument("--episodes",        type=int,  default=5,     help="Episodes per agent")
+    parser.add_argument("--seed",             type=int,  default=42,    help="Base seed")
+    parser.add_argument("--skip-fixed-time",  action="store_true", help="Skip fixed-time baseline")
+    parser.add_argument("--skip-dqn",         action="store_true", help="Skip DQN (use when model not yet committed)")
     args = parser.parse_args()
 
     print("\n" + "="*65)
@@ -330,8 +333,12 @@ def main():
     print("\n[2/4] Evaluating Q-Learning...")
     all_results["Q-Learning"] = run_qlearning(args.episodes, args.seed, port=8825)
 
-    print("\n[3/4] Evaluating DQN...")
-    all_results["DQN"] = run_dqn(args.episodes, args.seed, port=8835)
+    if not args.skip_dqn:
+        print("\n[3/4] Evaluating DQN...")
+        all_results["DQN"] = run_dqn(args.episodes, args.seed, port=8835)
+    else:
+        print("\n[3/4] DQN skipped (--skip-dqn flag set)")
+        all_results["DQN"] = None
 
     if not args.skip_fixed_time:
         print("\n[4/4] Evaluating Fixed-Time Baseline...")
