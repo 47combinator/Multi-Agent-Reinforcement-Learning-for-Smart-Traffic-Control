@@ -1,55 +1,89 @@
-# Multi-Agent-Reinforcement-Learning-for-Smart-Traffic-Control
+# Multi-Agent Reinforcement Learning for Smart Traffic Control
 
-Q-Learning Traffic Signal Controller
-A standalone, completely independent Q-Learning Reinforcement Learning architecture for intelligent traffic signal control in SUMO.
+> A unified research project comparing three RL algorithms — **PPO**, **DQN**, and **Q-Learning** — for adaptive traffic signal control using SUMO and TraCI.
 
-Project Overview
-This project implements a custom Q-Learning tabular agent to optimize traffic light phases. Unlike continuous state-space continuous state-space models that rely on deep neural networks, this architecture discretizes the continuous state space extracted from the environment and maps it to a discrete action space using a Q-Table.
+---
 
-It explores traffic patterns using an epsilon-greedy policy and iteratively updates its action-value estimates using the Bellman Equation to minimize traffic wait times and queue lengths.
+## Project Structure
 
-Folder Structure
-qlearning/
-??? agent/
-?   ??? qlearning_agent.py      # Core Q-Learning Agent and Bellman Update logic
-??? config/
-?   ??? qlearning.yaml          # Configuration (hyperparameters, paths, episodes)
-??? environment/
-?   ??? reward_calculator.py    # Calculates reward (negative wait time/queue)
-?   ??? state_extractor.py      # Extracts environment state via TraCI
-?   ??? traffic_env.py          # Custom Gymnasium-like SUMO Environment
-??? evaluation/
-?   ??? q_evaluator.py          # Benchmarks RL against fixed-time SUMO baseline
-??? results/                    # Generated output directories
-?   ??? best_model/             # Saved optimum Q-Table model JSON
-?   ??? checkpoints/            # Intermediate model JSONs
-?   ??? logs/                   # monitor.csv metrics
-?   ??? tensorboard_logs/       # TensorBoard events
-??? utils/                      # Logging and reproducibility utilities
-??? visualization/              # Metric plotting tools
-??? main.py                     # Entry point for training and evaluation
-Installation
-Ensure you have Python 3.9+ and SUMO installed.
+```
+├── ppo/               ← Proximal Policy Optimization agent (Pratyush)
+├── dqn/               ← Deep Q-Network agent (teammate)
+├── qlearning/         ← Tabular Q-Learning agent (teammate)
+├── sumo_env/          ← Shared SUMO simulation files (single intersection)
+├── benchmark/         ← Unified evaluation: runs all 3 agents, same seeds
+│   ├── benchmark.py
+│   └── plots/
+├── assets/            ← Report figures
+└── PPO_TRAINING_REPORT.md
+```
 
-Install SUMO: Download and install Eclipse SUMO. Ensure the SUMO_HOME environment variable is set to your installation directory (e.g., C:\Program Files (x86)\Eclipse\Sumo).
-Install Python dependencies:
-pip install traci numpy pyyaml matplotlib tensorboard
-(Note: stable-baselines3 and torch are NOT required for this standalone project).
+---
 
-Running Training
-To train the Q-Learning model from scratch, execute:
+## Shared Environment
 
+All three agents use the **same** SUMO intersection network:
+- `sumo_env/single_intersection.net.xml` — 4-way intersection
+- `sumo_env/single_intersection.rou.xml` — NS: 400 veh/hr | EW: 250 veh/hr
+- Traffic Light ID: **`center`**
+- State space: 8-dimensional (queue + waiting time per lane)
+- Action space: 4 discrete phases (NS Green, EW Green, NS Extend, EW Extend)
+
+---
+
+## Running Each Agent
+
+### PPO
+```bash
+python ppo/main.py --mode train --timesteps 500000
+python ppo/main.py --mode evaluate --episodes 10
+```
+
+### Q-Learning
+```bash
 python qlearning/main.py --mode train
-To override the default number of episodes (1500) defined in the config:
+python qlearning/main.py --mode evaluate
+```
 
-python qlearning/main.py --mode train --train-episodes 500
-Running Evaluation
-To evaluate your trained model deterministically against the default SUMO fixed-time baseline:
+### DQN
+```bash
+cd dqn
+python train_dqn.py
+python evaluate_dqn.py --episodes 10
+```
 
-python qlearning/main.py --mode evaluate --episodes 10
-By default, evaluation will attempt to load the optimal model from qlearning/results/best_model/q_model_center.json. You can specify a custom model path using --model.
+---
 
-Monitoring Performance
-During or after training, you can visualize the learning curves using TensorBoard:
+## Unified Benchmark (All 3 Together)
 
-tensorboard --logdir qlearning/results/tensorboard_logs
+After all agents are trained, compare them side-by-side:
+
+```bash
+python benchmark/benchmark.py --episodes 10 --seed 42
+```
+
+This will:
+1. Load the best saved model from each agent
+2. Run all on the same SUMO simulation with identical seeds
+3. Output a comparison table and save a bar chart to `benchmark/plots/`
+
+---
+
+## Results Summary
+
+| Algorithm | Mean Reward | Mean Wait Time | Mean Queue |
+|:----------|:------------|:---------------|:-----------|
+| PPO       | -17.02      | 592s           | 30.27      |
+| DQN       | TBD         | TBD            | TBD        |
+| Q-Learning| TBD         | TBD            | TBD        |
+| Fixed-Time| -131.91     | 670s           | 28.68      |
+
+---
+
+## Requirements
+
+```bash
+pip install stable-baselines3 gymnasium torch numpy matplotlib traci sumo
+```
+
+See individual `requirements.txt` in each agent folder for exact versions.
