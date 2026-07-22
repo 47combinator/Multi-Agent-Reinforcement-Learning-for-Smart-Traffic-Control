@@ -71,8 +71,8 @@ else:
 import traci
   # SUMO subscription constants (optional)
 
-from environment.state_extractor import StateExtractor, OBS_SIZE
-from environment.reward_calculator import RewardCalculator
+from qlearning.environment.state_extractor import StateExtractor, OBS_SIZE
+from qlearning.environment.reward_calculator import RewardCalculator
 
 
 # ---------------------------------------------------------------------------

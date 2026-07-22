@@ -17,7 +17,7 @@ torch>=2.0.0                    # PyTorch (DQN networks + SB3 backend)
 
 # ── Data & Numerics ──────────────────────────────────────────────────
 numpy>=1.24.0                   # Array operations
-pandas>=1.5.0                   # Training history CSV handling
+pandas>=2.0.0                   # Training history CSV handling
 
 # ── Visualization ────────────────────────────────────────────────────
 matplotlib>=3.7.0               # Plots and figures
@@ -25,3 +25,7 @@ matplotlib>=3.7.0               # Plots and figures
 # ── Configuration & Logging ──────────────────────────────────────────
 pyyaml>=6.0                     # YAML config loading
 tensorboard>=2.13.0             # Training visualisation
+
+# ── CLI & Formatting ─────────────────────────────────────────────────
+tqdm>=4.65.0                    # Progress bars
+rich>=13.0.0                    # Rich terminal output

@@ -8,18 +8,24 @@ Usage:
 
 import os
 import sys
+
+from pathlib import Path
+_THIS_DIR = Path(__file__).resolve().parent
+_ROOT_DIR = _THIS_DIR.parent
+sys.path.insert(0, str(_ROOT_DIR))
+
 import argparse
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
 
-from env.traffic_env import TrafficEnv
-from models.dqn import DQNAgent
+from dqn.environment.traffic_env import TrafficEnv
+from dqn.models.dqn import DQNAgent
 from baselines.q_learning import QLearningAgent
 from baselines.ppo import PPOAgent
 from config import ENV_CONFIG, DQN_CONFIG, PPO_CONFIG
-from utils import get_logger, TrafficPlotter
+from dqn.utils import get_logger, TrafficPlotter
 
 logger = get_logger(__name__)
 

@@ -12,9 +12,9 @@ import csv
 from pathlib import Path
 import numpy as np
 
-from environment.traffic_env import TrafficEnv
-from agent.qlearning_agent import QLearningAgent
-from utils.logger import get_logger
+from qlearning.environment.traffic_env import TrafficEnv
+from qlearning.agent.qlearning_agent import QLearningAgent
+from qlearning.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

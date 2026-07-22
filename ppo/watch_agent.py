@@ -15,12 +15,12 @@ Controls in SUMO-GUI:
 """
 
 import sys, os
-sys.path.insert(0, 'ppo')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 os.environ.setdefault('SUMO_HOME', 'D:/projects')
 
 from pathlib import Path
 from stable_baselines3 import PPO
-from environment.traffic_env import TrafficEnv
+from ppo.environment.traffic_env import TrafficEnv
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 RESULTS_DIR  = Path("ppo/results")

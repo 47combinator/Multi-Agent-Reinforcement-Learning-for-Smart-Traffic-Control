@@ -1,4 +1,4 @@
 """Agent package init."""
-from agent.ppo_agent import PPOTrafficAgent
+from ppo.agent.ppo_agent import PPOTrafficAgent
 
 __all__ = ["PPOTrafficAgent"]

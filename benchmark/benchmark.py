@@ -55,8 +55,7 @@ C = {"PPO": "#4f8ef7", "DQN": "#4ecb71", "Q-Learning": "#f7a84f", "Fixed-Time": 
 def run_fixed_time(n_episodes: int, seed: int, port: int = 8830) -> dict:
     """Run a fixed-time cycling baseline (no model needed)."""
     try:
-        sys.path.insert(0, str(ROOT / "ppo"))
-        from environment.traffic_env import TrafficEnv
+        from ppo.environment.traffic_env import TrafficEnv
 
         PHASES = 4
         results = {"rewards": [], "wait_times": [], "queues": []}
@@ -98,9 +97,9 @@ def run_fixed_time(n_episodes: int, seed: int, port: int = 8830) -> dict:
 def run_ppo(n_episodes: int, seed: int, port: int = 8820) -> dict:
     """Load and evaluate the PPO best model."""
     try:
-        sys.path.insert(0, str(ROOT / "ppo"))
+        
         from stable_baselines3 import PPO
-        from environment.traffic_env import TrafficEnv
+        from ppo.environment.traffic_env import TrafficEnv
 
         model_path = ROOT / "ppo" / "results" / "best_model" / "best_model"
         if not model_path.with_suffix(".zip").exists():
@@ -148,9 +147,9 @@ def run_qlearning(n_episodes: int, seed: int, port: int = 8825) -> dict:
     """Load and evaluate the Q-Learning saved model."""
     try:
         ql_root = ROOT / "qlearning"
-        sys.path.insert(0, str(ql_root))
-        from environment.traffic_env import TrafficEnv as QLTrafficEnv
-        from agent.qlearning_agent import QLearningAgent
+        
+        from qlearning.environment.traffic_env import TrafficEnv as QLTrafficEnv
+        from qlearning.agent.qlearning_agent import QLearningAgent
 
         model_path = ROOT / "qlearning" / "results" / "best_model" / "q_model_center.json"
         if not model_path.exists():
@@ -204,12 +203,12 @@ def run_dqn(n_episodes: int, seed: int, port: int = 8835) -> dict:
     """Load and evaluate the DQN best model."""
     try:
         dqn_root = ROOT / "dqn"
-        sys.path.insert(0, str(dqn_root))
+        
 
         # Try to import DQN env and agent
-        from env.traffic_env import TrafficEnv as DQNTrafficEnv
-        from models.dqn import DQNAgent
-        from config import ENV_CONFIG, DQN_CONFIG
+        from dqn.environment.traffic_env import TrafficEnv as DQNTrafficEnv
+        from dqn.models.dqn import DQNAgent
+        from dqn.config import ENV_CONFIG, DQN_CONFIG
 
         model_path = dqn_root / "results_dqn" / "best_model" / "best_dqn_model.pth"
         if not model_path.exists():

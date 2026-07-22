@@ -41,8 +41,8 @@ import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from environment.traffic_env import TrafficEnv
-from utils.logger import get_logger
+from ppo.environment.traffic_env import TrafficEnv
+from ppo.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

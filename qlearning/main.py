@@ -26,7 +26,8 @@ from pathlib import Path
 
 # ── Make sure qlearning/ is on the Python path when running from project root ──
 _THIS_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(_THIS_DIR))
+_ROOT_DIR = _THIS_DIR.parent
+sys.path.insert(0, str(_ROOT_DIR))
 
 if "SUMO_HOME" not in os.environ:
     raise EnvironmentError(
