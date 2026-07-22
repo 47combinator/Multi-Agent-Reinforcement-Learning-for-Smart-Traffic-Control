@@ -197,8 +197,8 @@ To ensure a fair and rigorous comparison, all models are evaluated using a deter
 | Algorithm     | Mean Reward | Mean Wait Time (s) | Mean Queue Length |
 | :------------ | :---------: | :----------------: | :---------------: |
 | **PPO**       | N/A         | N/A                | N/A               |
-| **Q-Learning**| -69.32      | 513.5              | 26.35             |
-| **DQN**       | **-2.96**   | 686.6              | 34.03             |
+| **Q-Learning**| **-76.01**  | **513.9**          | **26.34**         |
+| **DQN**       | -85.00      | 543.2              | 27.51             |
 | **Fixed-Time**| -96.10      | 606.2              | 28.62             |
 
 ### Architectural Comparison
@@ -213,7 +213,7 @@ To ensure a fair and rigorous comparison, all models are evaluated using a deter
 
 ### Performance Analysis
 
-Under the unified benchmark configuration, all agents were evaluated using an identical, clipped, and normalized reward function. **DQN** achieved the strongest mean reward (-2.96) demonstrating its ability to optimize the delta-based reward effectively. Interestingly, **Q-Learning** produced the lowest Mean Wait Time (513.5s) and Queue Length (26.35). Despite being a simple tabular baseline, its discretization proved highly effective at minimizing raw congestion metrics in this specific scenario, even if its mathematical reward accumulation was lower than DQN's. All learning agents significantly outperformed the **Fixed-Time** baseline's reward (-96.10), validating the application of RL for adaptive traffic signal control.
+Under the unified benchmark configuration, all agents were evaluated using an identical, clipped, and normalized reward function. Interestingly, **Q-Learning** produced the strongest mean reward (-76.01) along with the lowest Mean Wait Time (513.9s) and Queue Length (26.34). Despite being a simple tabular baseline, its discretization proved highly effective at minimizing raw congestion metrics in this specific single-intersection scenario, outperforming the more complex continuous representation of **DQN** (-85.00). Both learning agents significantly outperformed the **Fixed-Time** baseline's reward (-96.10) and wait times (606.2s), validating the application of Reinforcement Learning for adaptive traffic signal control.
 
 ---
 
