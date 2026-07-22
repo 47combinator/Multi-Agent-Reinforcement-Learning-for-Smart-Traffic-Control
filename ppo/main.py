@@ -119,7 +119,7 @@ def get_args() -> argparse.Namespace:
 
 def get_sumocfg_path() -> str:
     """Resolve absolute path to the SUMO config file."""
-    return str(_THIS_DIR / "sumo_files" / "single_intersection.sumocfg")
+    return str(_THIS_DIR.parent / "sumo_env" / "single_intersection.sumocfg")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -60,7 +60,7 @@ def get_args() -> argparse.Namespace:
 
 
 def get_sumocfg_path() -> str:
-    return str(_THIS_DIR / "sumo_files" / "single_intersection.sumocfg")
+    return str(_THIS_DIR.parent / "sumo_env" / "single_intersection.sumocfg")
 
 
 def run_train(args: argparse.Namespace) -> None:

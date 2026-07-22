@@ -9,7 +9,8 @@ import torch
 
 # Base directories
 BASE_DIR = Path(__file__).resolve().parent
-SUMO_FILES_DIR = BASE_DIR / "sumo_files"
+ROOT_DIR = BASE_DIR.parent
+SUMO_FILES_DIR = ROOT_DIR / "sumo_env"
 RESULTS_DIR = BASE_DIR / "results"
 
 # SUMO configuration path
@@ -46,7 +47,7 @@ DQN_CONFIG = {
     "epsilon_start": 1.0,
     "epsilon_end": 0.01,
     "epsilon_decay": 0.995,         # Epsilon decay rate per episode
-    "num_episodes": 1000,
+    "num_episodes": 15,
     "max_steps": 1000,              # Max steps per episode to override env limit if needed
     "optimizer": "Adam",
     "grad_clip": 1.0,               # Gradient clipping threshold
@@ -75,8 +76,8 @@ PPO_CONFIG = {
 }
 
 # General settings
-LOG_FREQ = 10                       # Logging to console frequency (episodes)
-EVAL_FREQ = 50                      # Evaluation frequency (episodes)
+LOG_FREQ = 1                        # Logging to console frequency (episodes)
+EVAL_FREQ = 10                      # Evaluation frequency (episodes)
 N_EVAL_EPISODES = 5                 # Number of episodes for evaluation
 CHECKPOINT_FREQ = 100               # Checkpoint save frequency (episodes)
 EARLY_STOPPING_PATIENCE = 15        # Number of evaluations with no improvement before stopping

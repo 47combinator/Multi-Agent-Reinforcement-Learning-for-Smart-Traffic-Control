@@ -47,7 +47,7 @@ def evaluate(agent: DQNAgent, env_config: dict, n_episodes: int, seed: int) -> d
         lane_ids=env_config["lane_ids"],
         delta_t=env_config["delta_t"],
         max_steps=env_config["max_steps"],
-        traci_port=env_config["eval_traci_port"],
+        traci_port=env_config.get("traci_port", 8813) + 1,
         use_gui=False,
         seed=seed
     )

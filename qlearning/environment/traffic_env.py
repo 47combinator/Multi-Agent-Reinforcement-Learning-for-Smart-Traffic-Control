@@ -156,7 +156,7 @@ class TrafficEnv(gym.Env):
             # Default: relative to this file's location
             _here = Path(__file__).resolve().parent.parent
             sumocfg_path = str(
-                _here / "sumo_files" / "single_intersection.sumocfg"
+                _here.parent / "sumo_env" / "single_intersection.sumocfg"
             )
         self.sumocfg_path = sumocfg_path
         self.tls_id = tls_id
