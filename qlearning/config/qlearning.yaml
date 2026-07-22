@@ -1,0 +1,38 @@
+# Q-Learning Hyperparameters Configuration
+# =======================================
+# All values here control the behavior of the Q-Learning Agent.
+# Edit this file to tune the agent without changing source code.
+
+qlearning:
+  # ── Learning Parameters ───────────────────────────────────────────
+  alpha: 0.1             # Learning rate (how much new information overrides old)
+  gamma: 0.99            # Discount factor (importance of future rewards)
+  
+  # ── Exploration Parameters (Epsilon-Greedy) ───────────────────────
+  epsilon_start: 1.0     # Initial exploration rate (100% random actions)
+  epsilon_min: 0.05      # Minimum exploration rate (always keep 5% exploration)
+  epsilon_decay: 0.9995  # Decay rate per step/episode
+  
+  # ── State Discretization ──────────────────────────────────────────
+  bins: 6                # Number of bins per continuous state dimension
+
+# ── Training run configuration ──────────────────────────────────────
+training:
+  total_episodes: 1500      # total episodes to train for
+  eval_freq: 50             # episodes between evaluation runs
+  n_eval_episodes: 5        # episodes per evaluation
+  checkpoint_freq: 100      # episodes between model saves
+  seed: 42                  # global random seed
+
+# ── Environment configuration ───────────────────────────────────────
+environment:
+  delta_t: 5          # simulation seconds per agent step
+  max_steps: 720      # maximum steps per episode (720 × 5s = 3600s)
+  traci_port: 8816    # TCP port for training environment TraCI (distinct from baseline)
+  eval_traci_port: 8817  # TCP port for evaluation environment TraCI
+
+# ── Reward function weights ─────────────────────────────────────────
+reward:
+  alpha: 0.4    # waiting time delta weight
+  beta: 0.3     # queue length delta weight
+  gamma: 0.3    # throughput weight

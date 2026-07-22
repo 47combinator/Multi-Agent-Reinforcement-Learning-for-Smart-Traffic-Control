@@ -1,0 +1,66 @@
+# PPO Hyperparameters Configuration
+# ===================================
+# All values here override the defaults in ppo_agent.py.
+# Edit this file to tune the agent without changing source code.
+# Changes here are tracked by git, making experiments reproducible.
+#
+# Hyperparameter Guide:
+#   n_steps     : Rollout buffer size. Larger → less frequent updates.
+#                 Typical range: 1024–8192.
+#   batch_size  : Must divide n_steps. Smaller → noisier, faster updates.
+#   n_epochs    : More passes → better data utilization but risks overfitting.
+#   gamma       : Discount. 0.99 for long-horizon (traffic), 0.95 for short.
+#   gae_lambda  : Advantage estimation. 0.95 balances bias-variance.
+#   clip_range  : PPO clipping. 0.1–0.3. Smaller → more conservative updates.
+#   ent_coef    : Entropy bonus. Increase if policy collapses too early.
+#   vf_coef     : Value loss weight. 0.5 is standard.
+#   learning_rate: Adam LR. 3e-4 is the standard starting point for RL.
+#   max_grad_norm: Clip gradients > this norm. 0.5 prevents exploding grads.
+
+ppo:
+  # ── Rollout configuration ─────────────────────────────────────────
+  n_steps: 2048          # steps collected per update iteration
+  batch_size: 64         # mini-batch size for SGD
+
+  # ── Training epochs ───────────────────────────────────────────────
+  n_epochs: 10           # passes over rollout data per update
+
+  # ── Discount and advantage ────────────────────────────────────────
+  gamma: 0.99            # future reward discount factor
+  gae_lambda: 0.95       # GAE lambda (bias-variance trade-off)
+
+  # ── PPO clipping ──────────────────────────────────────────────────
+  clip_range: 0.2        # epsilon for clipped surrogate objective
+  normalize_advantage: true  # normalize advantages within each mini-batch
+
+  # ── Loss coefficients ─────────────────────────────────────────────
+  ent_coef: 0.01         # entropy bonus for exploration
+  vf_coef: 0.5           # value function loss weight
+
+  # ── Optimization ──────────────────────────────────────────────────
+  learning_rate: 0.0003  # Adam optimizer learning rate
+  max_grad_norm: 0.5     # gradient clipping norm
+
+  # ── Hardware ──────────────────────────────────────────────────────
+  device: "auto"         # "cpu", "cuda", or "auto" (uses GPU if available)
+
+# ── Training run configuration ────────────────────────────────────────
+training:
+  total_timesteps: 500000   # total env steps (increase for production)
+  eval_freq: 10000          # steps between evaluation runs
+  n_eval_episodes: 5        # episodes per evaluation
+  checkpoint_freq: 50000    # steps between model saves
+  seed: 42                  # global random seed
+
+# ── Environment configuration ─────────────────────────────────────────
+environment:
+  delta_t: 5          # simulation seconds per agent step
+  max_steps: 720      # maximum steps per episode (720 × 5s = 3600s)
+  traci_port: 8813    # TCP port for training environment TraCI
+  eval_traci_port: 8814  # TCP port for evaluation environment TraCI
+
+# ── Reward function weights ───────────────────────────────────────────
+reward:
+  alpha: 0.4    # waiting time delta weight
+  beta: 0.3     # queue length delta weight
+  gamma: 0.3    # throughput weight
