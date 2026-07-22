@@ -207,9 +207,7 @@ Evaluated over 10 episodes per agent on the same SUMO simulation with identical 
 | **Fixed-Time Baseline**  | 575.8            | 27.30            | ±4.68          |
 | **PPO**                | 593.2              | 30.23            | ±28.08         |
 
-> **Note:** Raw reward values are not directly comparable across agents because PPO and Q-Learning
-> use a normalized, clipped reward function while DQN uses an unnormalized variant.
-> The traffic metrics above (wait time, queue length) are objective and comparable.
+> **Note:** Raw reward values have been omitted from this table to focus strictly on objective traffic metrics. However, all three agents (PPO, DQN, and Q-Learning) now successfully utilize the identical normalized, clipped reward function.
 
 ### Architectural Comparison
 
