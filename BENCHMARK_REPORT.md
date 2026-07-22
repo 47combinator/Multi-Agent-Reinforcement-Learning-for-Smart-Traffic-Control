@@ -1,48 +1,79 @@
-# 🚦 Multi-Agent RL Traffic Control — Final Benchmark Report
+# Multi-Agent RL Traffic Control — Final Benchmark Report
 
-This report summarizes the final unified evaluation of all three reinforcement learning agents (PPO, DQN, and Tabular Q-Learning) alongside a Fixed-Time baseline. All agents were evaluated on the **exact same SUMO simulation** (4-way intersection) across 10 identical random seeds.
-
-## 📊 Final Performance Comparison
-
-> [!NOTE]
-> Higher **Reward** is better. Lower **Wait Time** and **Queue** are better.
-
-| Algorithm | Mean Reward | Mean Wait Time (s) | Mean Queue Length |
-| :--- | :--- | :--- | :--- |
-| **DQN (Double + Dueling)** | **+91.32** 🏆 | 522.2s | 26.74 |
-| **PPO** | -23.85 | 593.2s | 30.23 |
-| **Q-Learning (Tabular)** | -71.41 | **519.0s** 🏆 | **26.53** 🏆 |
-| **Fixed-Time Baseline** | -96.45 | 575.8s | 27.30 |
-
-*(Evaluated over 10 episodes, 720 steps per episode. Wait times and queues are averages per step across all 4 incoming lanes).*
+This report summarizes the final unified evaluation of all three reinforcement learning agents (PPO, DQN, and Tabular Q-Learning) alongside a Fixed-Time baseline. All agents were evaluated on the **exact same SUMO simulation** (4-way intersection) across 10 identical random seeds (seed=42).
 
 ---
 
-## 🔬 Analysis & Key Findings
+## Benchmark Results — Traffic Metrics
 
-### 1. DQN is the Overall Winner
-The **Double Dueling DQN** agent significantly outperformed all other approaches in terms of the composite Reward function (+91.32 vs negative scores for the rest). By utilizing a neural network with a replay buffer and soft target updates, it successfully learned to balance wait times, queue lengths, and intersection throughput simultaneously.
+The primary comparison uses **objective traffic metrics** (waiting time, queue length) rather than raw reward values, since the reward functions differ across agent implementations.
 
-### 2. Q-Learning is Highly Specialized
-The Tabular **Q-Learning** agent achieved the absolute lowest Wait Times (519.0s) and shortest Queue lengths (26.53). However, it scored poorly on the overall Reward metric (-71.41). This indicates that the Q-Learning agent became highly specialized at minimizing immediate queues, likely at the expense of overall vehicle throughput (which the reward function also factors in).
+> **Lower** Wait Time and Queue Length = **Better** performance.
 
-### 3. PPO Struggled with Continuous-to-Discrete Mapping
-**PPO** (Proximal Policy Optimization) performed the worst among the RL agents in terms of actual traffic metrics (highest wait time at 593.2s). PPO is fundamentally designed for continuous action spaces; forcing it into a 4-discrete-action space for traffic light phases makes it harder for the policy gradient to converge optimally compared to value-based methods like DQN.
+| Algorithm              | Mean Wait Time (s) | Mean Queue Length | Reward Std Dev |
+|:-----------------------|:------------------:|:----------------:|:--------------:|
+| **Q-Learning (Tabular)** | **519.0** | **26.53** | +/-10.94 |
+| **DQN (Double+Dueling)** | 522.2 | 26.74 | +/-4.53 |
+| **Fixed-Time Baseline**  | 575.8 | 27.30 | +/-4.68 |
+| **PPO (SB3)**            | 593.2 | 30.23 | +/-28.08 |
+
+*Evaluated over 10 episodes, 720 steps per episode. Wait times and queues are per-step averages across all 4 incoming lanes.*
+
+### Improvement Over Fixed-Time Baseline
+
+| Algorithm | Wait Time Reduction | Queue Reduction |
+|:----------|:-------------------:|:---------------:|
+| Q-Learning | **-9.9%** | **-2.8%** |
+| DQN | **-9.3%** | **-2.1%** |
+| PPO | +3.0% (worse) | +10.7% (worse) |
 
 ---
 
-## 🎓 Next Steps for a Research Paper
+## Analysis & Key Findings
 
-If you intend to publish this as a research paper, here is how you can elevate the project from its current state:
+### 1. Value-Based Methods Dominate
 
-> [!TIP]
-> **Research Idea 1: State Space Ablation Study**
-> Your Q-Learning agent uses an 18-dimensional discretized state, while your PPO and DQN agents use an 8-dimensional continuous state. A great paper section would be analyzing how *state representation* affects learning efficiency. Does PPO perform better if given the 18-dim state?
+Both **Q-Learning** and **DQN** significantly outperformed the Fixed-Time baseline and PPO on objective traffic metrics. They achieved nearly identical performance (~520s wait, ~26.5 queue), suggesting that the value-based approach is fundamentally better suited for this discrete-action traffic control task.
 
-> [!TIP]
-> **Research Idea 2: Multi-Intersection Grid**
-> Currently, the agents control a single isolated intersection. The true test of "Multi-Agent" RL is applying these trained models to a grid (e.g., 2x2 or 3x3 intersections) where the actions of one agent directly impact the state of its neighbor.
+### 2. DQN is the Most Consistent Agent
 
-> [!IMPORTANT]
-> **Check your Git Repository!**
-> The complete unified code, including the environments, the benchmark script, and all three trained models have now been successfully merged and pushed to your GitHub branch: `feature/unified-benchmark`. You can now safely open a Pull Request to `main`.
+While Q-Learning edged out DQN on raw metrics, DQN exhibited the **lowest variance** (std dev +/-4.53 vs Q-Learning's +/-10.94). This indicates DQN's learned policy is more robust across different traffic seeds — an important property for real-world deployment.
+
+### 3. PPO Underperformed on Discrete Actions
+
+PPO was designed for continuous action spaces. Forcing it into a 4-discrete-action domain makes it harder for the policy gradient to converge efficiently compared to value-based methods. PPO's high variance (+/-28.08) further confirms instability in this setting.
+
+### 4. Reward Function Caveat
+
+> **Important:** The raw reward values are **not directly comparable** across agents.
+> PPO and Q-Learning use a normalized, clipped reward (output in [-1, 1] per step),
+> while DQN uses an unnormalized variant. This is why we report traffic metrics
+> as the primary comparison.
+
+---
+
+## Agent Implementation Details
+
+| Property | PPO | DQN | Q-Learning |
+|:---------|:----|:----|:-----------|
+| **Framework** | Stable-Baselines3 | Custom PyTorch | Custom (tabular) |
+| **Architecture** | Actor-Critic MLP | Double Dueling DQN | Q-Table |
+| **State Space** | 8-dim continuous | 8-dim continuous | 18-dim discretized |
+| **Action Space** | 4 discrete | 4 discrete | 4 discrete |
+| **Training Episodes** | 500K timesteps | 1000 episodes | ~5000 episodes |
+| **Reward Clipping** | [-1, 1] | None | [-1, 1] |
+| **Key Technique** | Clipped surrogate objective | Experience replay + soft target updates | Epsilon-greedy decay |
+
+---
+
+## Reproducibility
+
+| Parameter | Value |
+|:----------|:------|
+| SUMO Version | 1.20.0 |
+| Python | 3.9+ |
+| Random Seed | 42 |
+| Episodes | 10 |
+| Steps/Episode | 720 (= 3600 simulated seconds) |
+| Traffic Flow | NS: 400 veh/hr, EW: 250 veh/hr |
+| Intersection | Single 4-way, ID: `center` |
