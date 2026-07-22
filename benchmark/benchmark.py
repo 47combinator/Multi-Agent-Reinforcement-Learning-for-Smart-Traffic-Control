@@ -161,7 +161,7 @@ def run_qlearning(n_episodes: int, seed: int, port: int = 8825) -> dict:
         agent.is_training = False  # deterministic greedy mode
 
         # Q-Learning uses its own sumocfg (state extractor may differ)
-        ql_cfg_candidate = ql_root / "sumo_files" / "single_intersection.sumocfg"
+        ql_cfg_candidate = ql_root.parent / "sumo_env" / "single_intersection.sumocfg"
         ql_cfg = str(ql_cfg_candidate) if ql_cfg_candidate.exists() else SUMO_ENV_CFG
         results = {"rewards": [], "wait_times": [], "queues": []}
 

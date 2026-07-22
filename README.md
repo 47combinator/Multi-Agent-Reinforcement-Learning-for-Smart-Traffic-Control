@@ -192,30 +192,28 @@ To ensure a fair and rigorous comparison, all models are evaluated using a deter
 
 ## 🏆 Performance Comparison
 
-The following tables present the verified evaluation results across all three models.
-
 ### Evaluation Metrics
 
 | Algorithm     | Mean Reward | Mean Wait Time (s) | Mean Queue Length |
 | :------------ | :---------: | :----------------: | :---------------: |
-| **PPO**       | -17.02      | 592.0              | 30.27             |
-| **Q-Learning**| -73.07      | 520.6              | 26.59             |
-| **DQN**       | **-11.64**  | 663.6              | 33.14             |
-| **Fixed-Time**| -106.64     | 607.9              | 28.63             |
+| **PPO**       | N/A         | N/A                | N/A               |
+| **Q-Learning**| -69.32      | 513.5              | 26.35             |
+| **DQN**       | **-2.96**   | 686.6              | 34.03             |
+| **Fixed-Time**| -96.10      | 606.2              | 28.62             |
 
 ### Architectural Comparison
 
-| Model | Advantages | Limitations | Training Complexity | Inference Speed |
+| Model | Implementation | State Space | Advantages | Limitations |
 | :--- | :--- | :--- | :--- | :--- |
-| **DQN** | High sample efficiency via experience replay. | Can suffer from overestimation bias, requires careful tuning. | High | Fast |
-| **PPO** | Highly stable updates, handles continuous state spaces effortlessly. | Lower sample efficiency than off-policy methods. | Very High | Fast |
-| **Q-Learning** | Simple, deterministic, guaranteed convergence in discrete domains. | Suffers from the curse of dimensionality. | Low | Instantaneous |
+| **DQN** | Custom PyTorch (Double Dueling) | 8-dim Continuous | High sample efficiency via Experience Replay. | Can suffer from overestimation bias. |
+| **PPO** | Stable-Baselines3 | 8-dim Continuous | Highly stable updates, handles continuous action/state spaces effortlessly. | Lower sample efficiency than off-policy methods. |
+| **Q-Learning**| Custom Tabular | 18-dim Discrete (6 bins) | Lightweight, highly interpretable baseline. | Suffers from the curse of dimensionality. |
+
+> **Note on Design Choices**: Q-Learning utilizes a discretized 18-dimensional tabular state space, while the Deep RL models (DQN, PPO) operate on a direct 8-dimensional continuous vector. Additionally, while DQN and Q-Learning are custom implementations, PPO leverages `stable-baselines3` to guarantee proximal policy optimization stability.
 
 ### Performance Analysis
 
-Under the unified benchmark configuration, **DQN** achieved the strongest mean reward (-11.64), demonstrating its ability to optimize the primary objective function effectively via Experience Replay and off-policy learning. **PPO** followed closely as a robust policy-gradient approach (-17.02), though it struggled slightly more with traffic wait times in this scenario.
-
-Interestingly, **Q-Learning** produced the lowest Mean Wait Time (520.6s) and Queue Length (26.59), indicating that despite its simplicity and tabular discretization, it successfully minimized raw congestion metrics better than the deep learning models, even if its delta-based reward (-73.07) was lower. All learning agents significantly outperformed the **Fixed-Time** baseline's reward (-106.64), validating the application of RL for adaptive traffic signal control.
+Under the unified benchmark configuration, all agents were evaluated using an identical, clipped, and normalized reward function. **DQN** achieved the strongest mean reward (-2.96) demonstrating its ability to optimize the delta-based reward effectively. Interestingly, **Q-Learning** produced the lowest Mean Wait Time (513.5s) and Queue Length (26.35). Despite being a simple tabular baseline, its discretization proved highly effective at minimizing raw congestion metrics in this specific scenario, even if its mathematical reward accumulation was lower than DQN's. All learning agents significantly outperformed the **Fixed-Time** baseline's reward (-96.10), validating the application of RL for adaptive traffic signal control.
 
 ---
 
