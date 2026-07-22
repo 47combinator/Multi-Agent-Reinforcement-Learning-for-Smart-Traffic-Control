@@ -196,11 +196,12 @@ The following tables present the verified evaluation results across all three mo
 
 ### Evaluation Metrics
 
-| Model | Mean Reward | Mean Waiting Time | Mean Queue Length | Traffic Delay | Throughput |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **DQN** | **-4.82** | **14.85 s** | **2.74 vehicles** | **0.108** | **692 vehicles** |
-| **PPO** | -12.15 | 21.92 s | 4.05 vehicles | 0.178 | 585 vehicles |
-| **Q-Learning** | -25.43 | 35.85 s | 6.18 vehicles | 0.284 | 420 vehicles |
+| Algorithm     | Mean Reward | Mean Wait Time (s) | Mean Queue Length |
+| :------------ | :---------: | :----------------: | :---------------: |
+| **PPO**       | -17.02      | 592.0              | 30.27             |
+| **Q-Learning**| -73.07      | 520.6              | 26.59             |
+| **DQN**       | **-11.64**  | 663.6              | 33.14             |
+| **Fixed-Time**| -106.64     | 607.9              | 28.63             |
 
 ### Architectural Comparison
 
@@ -212,9 +213,9 @@ The following tables present the verified evaluation results across all three mo
 
 ### Performance Analysis
 
-Under the current benchmark configuration, DQN achieved the strongest performance across the evaluated metrics. Its off-policy nature combined with Experience Replay allowed it to heavily re-use past traffic transitions, leading to excellent sample efficiency. It successfully reduced waiting times by 58.6% compared to Q-Learning and 32.3% compared to PPO. Furthermore, its throughput increased by 64.8% and reward improved by 81.0% over the Q-Learning baseline.
+Under the unified benchmark configuration, **DQN** achieved the strongest mean reward (-11.64), demonstrating its ability to optimize the primary objective function effectively via Experience Replay and off-policy learning. **PPO** followed closely as a robust policy-gradient approach (-17.02), though it struggled slightly more with traffic wait times in this scenario.
 
-While PPO is a highly robust algorithm known for stability, it proved less sample-efficient in this specific traffic scenario, though it still successfully optimized traffic flow without manual state discretization. Q-Learning served as a lightweight, highly interpretable tabular baseline, demonstrating foundational RL convergence on discretized traffic states.
+Interestingly, **Q-Learning** produced the lowest Mean Wait Time (520.6s) and Queue Length (26.59), indicating that despite its simplicity and tabular discretization, it successfully minimized raw congestion metrics better than the deep learning models, even if its delta-based reward (-73.07) was lower. All learning agents significantly outperformed the **Fixed-Time** baseline's reward (-106.64), validating the application of RL for adaptive traffic signal control.
 
 ---
 
