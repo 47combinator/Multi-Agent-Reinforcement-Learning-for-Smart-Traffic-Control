@@ -16,10 +16,10 @@ from typing import Dict
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
-from environment.traffic_env import TrafficEnv
-from agent.qlearning_agent import QLearningAgent
-from utils.logger import get_logger
-from utils.reproducibility import set_global_seed
+from qlearning.environment.traffic_env import TrafficEnv
+from qlearning.agent.qlearning_agent import QLearningAgent
+from qlearning.utils.logger import get_logger
+from qlearning.utils.reproducibility import set_global_seed
 
 logger = get_logger(__name__)
 

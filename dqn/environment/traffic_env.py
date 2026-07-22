@@ -73,8 +73,8 @@ else:
 import traci
 import traci.constants as tc  # SUMO subscription constants (optional)
 
-from ppo.environment.state_extractor import StateExtractor, OBS_SIZE
-from ppo.environment.reward_calculator import RewardCalculator
+from dqn.environment.state_extractor import StateExtractor, OBS_SIZE
+from dqn.environment.reward_calculator import RewardCalculator
 
 
 # ---------------------------------------------------------------------------

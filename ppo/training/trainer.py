@@ -53,10 +53,10 @@ from stable_baselines3.common.callbacks import (
 )
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from environment.traffic_env import TrafficEnv
-from agent.ppo_agent import PPOTrafficAgent
-from utils.logger import get_logger
-from utils.reproducibility import set_global_seed
+from ppo.environment.traffic_env import TrafficEnv
+from ppo.agent.ppo_agent import PPOTrafficAgent
+from ppo.utils.logger import get_logger
+from ppo.utils.reproducibility import set_global_seed
 
 logger = get_logger(__name__)
 

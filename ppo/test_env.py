@@ -3,10 +3,10 @@ Quick SUMO integration test — runs 3 env steps to verify TraCI connectivity.
 Run from the project root: python ppo/test_env.py
 """
 import sys, os
-sys.path.insert(0, 'ppo')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 os.environ.setdefault('SUMO_HOME', 'D:/projects')
 
-from environment.traffic_env import TrafficEnv
+from ppo.environment.traffic_env import TrafficEnv
 
 print("Creating TrafficEnv...")
 env = TrafficEnv(traci_port=8813, seed=42)

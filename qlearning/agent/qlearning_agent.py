@@ -12,7 +12,7 @@ import os
 import json
 import numpy as np
 from typing import Dict, Tuple
-from utils.logger import get_logger
+from qlearning.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

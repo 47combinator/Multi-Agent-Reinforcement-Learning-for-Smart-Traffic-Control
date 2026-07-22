@@ -18,6 +18,12 @@ import torch
 
 # Mock traci module before importing project modules
 import sys
+
+from pathlib import Path
+_THIS_DIR = Path(__file__).resolve().parent
+_ROOT_DIR = _THIS_DIR.parent
+sys.path.insert(0, str(_ROOT_DIR))
+
 sys.modules['traci'] = MagicMock()
 import traci
 
@@ -42,12 +48,12 @@ traci.trafficlight.getNextSwitch.return_value = 30.0
 traci.trafficlight.getPhaseDuration.return_value = 42.0
 
 # Now import the project modules
-from env.state_extractor import StateExtractor, OBS_SIZE
-from env.reward_calculator import RewardCalculator, NORM_DELTA_WAIT
-from env.traffic_env import TrafficEnv
-from models.network import QNetwork
-from models.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
-from models.dqn import DQNAgent
+from dqn.environment.state_extractor import StateExtractor, OBS_SIZE
+from dqn.environment.reward_calculator import RewardCalculator, NORM_DELTA_WAIT
+from dqn.environment.traffic_env import TrafficEnv
+from dqn.models.network import QNetwork
+from dqn.models.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+from dqn.models.dqn import DQNAgent
 from baselines.q_learning import QLearningAgent
 from baselines.ppo import PPOAgent
 

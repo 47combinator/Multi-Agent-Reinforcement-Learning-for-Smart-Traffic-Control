@@ -8,6 +8,12 @@ Usage:
 
 import os
 import sys
+
+from pathlib import Path
+_THIS_DIR = Path(__file__).resolve().parent
+_ROOT_DIR = _THIS_DIR.parent
+sys.path.insert(0, str(_ROOT_DIR))
+
 import time
 import argparse
 from pathlib import Path
@@ -16,10 +22,10 @@ import pandas as pd
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from env.traffic_env import TrafficEnv
-from models.dqn import DQNAgent
+from dqn.environment.traffic_env import TrafficEnv
+from dqn.models.dqn import DQNAgent
 from config import ENV_CONFIG, DQN_CONFIG, LOG_FREQ, EVAL_FREQ, N_EVAL_EPISODES, CHECKPOINT_FREQ, EARLY_STOPPING_PATIENCE
-from utils import get_logger, set_global_seed, TrafficPlotter
+from dqn.utils import get_logger, set_global_seed, TrafficPlotter
 
 logger = get_logger(__name__)
 
