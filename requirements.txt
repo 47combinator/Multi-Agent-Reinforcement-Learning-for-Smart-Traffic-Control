@@ -1,0 +1,27 @@
+# Multi-Agent Reinforcement Learning for Smart Traffic Control
+# ==============================================================
+# Unified requirements for all three agents (PPO, DQN, Q-Learning)
+# Install with:  pip install -r requirements.txt
+#
+# SUMO / TraCI:
+#   TraCI is bundled with SUMO and located via the SUMO_HOME env var.
+#   Download SUMO from: https://sumo.dlr.de/docs/Downloads.php
+#   Then set:  SUMO_HOME=<path-to-sumo-installation>
+
+# ── Core RL ──────────────────────────────────────────────────────────
+stable-baselines3>=2.0.0        # PPO agent (Stable-Baselines3)
+gymnasium>=0.29.0               # Gymnasium environment interface
+
+# ── Deep Learning ────────────────────────────────────────────────────
+torch>=2.0.0                    # PyTorch (DQN networks + SB3 backend)
+
+# ── Data & Numerics ──────────────────────────────────────────────────
+numpy>=1.24.0                   # Array operations
+pandas>=1.5.0                   # Training history CSV handling
+
+# ── Visualization ────────────────────────────────────────────────────
+matplotlib>=3.7.0               # Plots and figures
+
+# ── Configuration & Logging ──────────────────────────────────────────
+pyyaml>=6.0                     # YAML config loading
+tensorboard>=2.13.0             # Training visualisation

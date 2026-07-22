@@ -71,19 +71,25 @@ This will:
 
 ## Results Summary
 
-| Algorithm | Mean Reward | Mean Wait Time | Mean Queue |
-|:----------|:------------|:---------------|:-----------|
-| PPO       | -17.02      | 592s           | 30.27      |
-| DQN       | TBD         | TBD            | TBD        |
-| Q-Learning| TBD         | TBD            | TBD        |
-| Fixed-Time| -131.91     | 670s           | 28.68      |
+Evaluated over 10 episodes per agent on the same SUMO simulation with identical seeds (seed=42).
+
+| Algorithm          | Mean Wait Time (s) | Mean Queue Length | Std Reward |
+|:-------------------|:-------------------|:-----------------|:-----------|
+| **Q-Learning**     | **519.0** 🏆       | **26.53** 🏆     | ±10.94     |
+| **DQN (Double+Dueling)** | 522.2         | 26.74            | ±4.53      |
+| **Fixed-Time**     | 575.8              | 27.30            | ±4.68      |
+| **PPO**            | 593.2              | 30.23            | ±28.08     |
+
+> **Note:** Raw reward values are not directly comparable across agents because PPO and Q-Learning
+> use a normalized, clipped reward function while DQN uses an unnormalized variant.
+> The traffic metrics above (wait time, queue length) are objective and comparable.
 
 ---
 
 ## Requirements
 
+1. **Install SUMO** from [sumo.dlr.de](https://sumo.dlr.de/docs/Downloads.php) and set the `SUMO_HOME` environment variable.
+2. Install Python dependencies:
 ```bash
-pip install stable-baselines3 gymnasium torch numpy matplotlib traci sumo
+pip install -r requirements.txt
 ```
-
-See individual `requirements.txt` in each agent folder for exact versions.
