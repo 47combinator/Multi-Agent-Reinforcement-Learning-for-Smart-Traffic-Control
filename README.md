@@ -294,3 +294,51 @@ We extend our gratitude to the developers of the open-source tools that made thi
 * [Eclipse SUMO](https://eclipse.dev/sumo/) for microscopic traffic simulation.
 * [Gymnasium (Farama Foundation)](https://gymnasium.farama.org/) for standardized RL API design.
 * [PyTorch](https://pytorch.org/) for accelerating deep learning models.
+
+---
+
+## 🎮 Live SUMO-GUI Visualisation
+
+Watch each trained agent control the intersection in real-time using the SUMO graphical simulator. Each approach road has a **distinct car colour** so you can easily track traffic from every direction:
+
+| Direction | Colour |
+|-----------|--------|
+| North | 🔵 Blue |
+| South | 🔴 Red |
+| East | 🟢 Green |
+| West | 🟡 Yellow |
+
+> **Prerequisites:** Make sure SUMO is installed and `SUMO_HOME` is set before running.
+> ```bash
+> # Windows PowerShell
+> $env:SUMO_HOME = "C:\Program Files (x86)\Eclipse\Sumo"
+>
+> # Linux / macOS
+> export SUMO_HOME="/usr/share/sumo"
+> ```
+
+All commands must be run from the **project root directory**.
+
+### Watch PPO Agent
+```bash
+python ppo/watch_agent.py
+```
+
+### Watch DQN Agent
+```bash
+python dqn/watch_dqn.py
+```
+
+### Watch Q-Learning Agent
+```bash
+python qlearning/watch_qlearning.py
+```
+
+### Controls in SUMO-GUI
+Once the window opens:
+1. Click the **Play button (▶)** in the toolbar to start the simulation.
+2. Use the **Delay slider** to slow down or speed up the simulation.
+3. Click the **magnifying glass** icon to zoom to the intersection.
+4. Press **Pause** at any time — the agent will wait for you.
+
+> **Note:** The GUI opens paused by default (200 ms/step delay) so you have time to position the view before clicking Play.

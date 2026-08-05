@@ -27,6 +27,7 @@ ENV_CONFIG = {
     "delta_t": 5,
     "max_steps": 720,       # Max steps per episode (720 steps = 3600 seconds)
     "traci_port": 8813,
+    "eval_traci_port": 8814,
     "use_gui": False,
     "seed": 42,
     # Reward weights

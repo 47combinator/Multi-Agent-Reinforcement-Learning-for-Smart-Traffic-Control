@@ -20,12 +20,30 @@
         xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 
     <!-- ================================================================
-         VEHICLE TYPE
-         sigma=0.5: driver imperfection parameter in Krauss model.
-         A value of 0.5 gives realistic variation in following behavior.
+         VEHICLE TYPES — Coloured and named for visual clarity in SUMO-GUI
+         Each approach gets a distinct colour so you can easily track
+         where traffic is coming from.
          ================================================================ -->
+
+    <!-- North approach: Blue cars -->
+    <vType id="car_north" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
+           maxSpeed="10.0" guiShape="passenger" color="0,0,200"/>
+
+    <!-- South approach: Red cars -->
+    <vType id="car_south" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
+           maxSpeed="10.0" guiShape="passenger" color="200,0,0"/>
+
+    <!-- East approach: Green cars -->
+    <vType id="car_east" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
+           maxSpeed="10.0" guiShape="passenger" color="0,180,0"/>
+
+    <!-- West approach: Yellow/Orange cars -->
+    <vType id="car_west" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
+           maxSpeed="10.0" guiShape="passenger" color="220,160,0"/>
+
+    <!-- Generic fallback (used if needed) -->
     <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
-           maxSpeed="13.89" guiShape="passenger"/>
+           maxSpeed="10.0" guiShape="passenger" color="100,100,100"/>
 
     <!-- ================================================================
          ROUTES
@@ -68,47 +86,47 @@
          'random' departLane/Pos gives natural spread.
          ================================================================ -->
 
-    <!-- ── North approach (main arterial, high volume) ─── -->
-    <flow id="flow_n_s" type="car" route="n2s"
-          begin="0" end="3600" vehsPerHour="400"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_n_e" type="car" route="n2e"
-          begin="0" end="3600" vehsPerHour="100"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_n_w" type="car" route="n2w"
-          begin="0" end="3600" vehsPerHour="100"
-          departSpeed="random" departPos="random_free"/>
-
-    <!-- ── South approach (main arterial, high volume) ─── -->
-    <flow id="flow_s_n" type="car" route="s2n"
-          begin="0" end="3600" vehsPerHour="400"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_s_e" type="car" route="s2e"
-          begin="0" end="3600" vehsPerHour="100"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_s_w" type="car" route="s2w"
-          begin="0" end="3600" vehsPerHour="100"
-          departSpeed="random" departPos="random_free"/>
-
-    <!-- ── East approach (side street, moderate volume) ─── -->
-    <flow id="flow_e_w" type="car" route="e2w"
+    <!-- North approach: BLUE cars — balanced with other approaches -->
+    <flow id="flow_n_s" type="car_north" route="n2s"
           begin="0" end="3600" vehsPerHour="250"
           departSpeed="random" departPos="random_free"/>
-    <flow id="flow_e_n" type="car" route="e2n"
+    <flow id="flow_n_e" type="car_north" route="n2e"
           begin="0" end="3600" vehsPerHour="60"
           departSpeed="random" departPos="random_free"/>
-    <flow id="flow_e_s" type="car" route="e2s"
+    <flow id="flow_n_w" type="car_north" route="n2w"
           begin="0" end="3600" vehsPerHour="60"
           departSpeed="random" departPos="random_free"/>
 
-    <!-- ── West approach (side street, moderate volume) ─── -->
-    <flow id="flow_w_e" type="car" route="w2e"
+    <!-- South approach: RED cars — balanced with other approaches -->
+    <flow id="flow_s_n" type="car_south" route="s2n"
           begin="0" end="3600" vehsPerHour="250"
           departSpeed="random" departPos="random_free"/>
-    <flow id="flow_w_n" type="car" route="w2n"
+    <flow id="flow_s_e" type="car_south" route="s2e"
           begin="0" end="3600" vehsPerHour="60"
           departSpeed="random" departPos="random_free"/>
-    <flow id="flow_w_s" type="car" route="w2s"
+    <flow id="flow_s_w" type="car_south" route="s2w"
+          begin="0" end="3600" vehsPerHour="60"
+          departSpeed="random" departPos="random_free"/>
+
+    <!-- East approach: GREEN cars (side street, moderate volume) -->
+    <flow id="flow_e_w" type="car_east" route="e2w"
+          begin="0" end="3600" vehsPerHour="250"
+          departSpeed="random" departPos="random_free"/>
+    <flow id="flow_e_n" type="car_east" route="e2n"
+          begin="0" end="3600" vehsPerHour="60"
+          departSpeed="random" departPos="random_free"/>
+    <flow id="flow_e_s" type="car_east" route="e2s"
+          begin="0" end="3600" vehsPerHour="60"
+          departSpeed="random" departPos="random_free"/>
+
+    <!-- West approach: YELLOW/ORANGE cars (side street, moderate volume) -->
+    <flow id="flow_w_e" type="car_west" route="w2e"
+          begin="0" end="3600" vehsPerHour="250"
+          departSpeed="random" departPos="random_free"/>
+    <flow id="flow_w_n" type="car_west" route="w2n"
+          begin="0" end="3600" vehsPerHour="60"
+          departSpeed="random" departPos="random_free"/>
+    <flow id="flow_w_s" type="car_west" route="w2s"
           begin="0" end="3600" vehsPerHour="60"
           departSpeed="random" departPos="random_free"/>
 

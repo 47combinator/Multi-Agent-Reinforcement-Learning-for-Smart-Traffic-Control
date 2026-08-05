@@ -412,9 +412,10 @@ class TrafficEnv(gym.Env):
 
         SUMO is started with:
             --seed <seed>     : Different seed each episode for stochasticity
-            --start           : Begin simulation immediately (no wait)
+            --start           : Begin simulation immediately (headless only)
             --quit-on-end     : Auto-terminate when simulation ends
             --no-step-log     : Suppress per-step console output
+            --delay           : GUI-only, ms delay per step for visibility
 
         TraCI connection:
             traci.start() forks the SUMO subprocess AND connects.
@@ -426,11 +427,18 @@ class TrafficEnv(gym.Env):
             sumo_binary,
             "--configuration-file", self.sumocfg_path,
             "--seed",               str(self._seed),
-            "--start",              # begin immediately
             "--quit-on-end",        # terminate when simulation time ends
             "--no-step-log",        # suppress verbose step output
             "--waiting-time-memory","200",  # track wait times 200s back
         ]
+
+        if self.use_gui:
+            # In GUI mode: add delay so simulation is visible, don't auto-start
+            # (user presses Play in the GUI window)
+            sumo_cmd += ["--delay", "200"]
+        else:
+            # In headless training mode: start immediately for speed
+            sumo_cmd += ["--start"]
 
         # traci.start() both starts SUMO and opens the TraCI socket.
         # label=str(port) allows multiple simultaneous environments.
