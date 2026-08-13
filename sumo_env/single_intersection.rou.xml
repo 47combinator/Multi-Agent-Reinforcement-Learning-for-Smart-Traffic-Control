@@ -1,0 +1,63 @@
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+    
+
+    
+    <vType id="car_north" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="0,0,200" />
+
+    
+    <vType id="car_south" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="200,0,0" />
+
+    
+    <vType id="car_east" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="0,180,0" />
+
+    
+    <vType id="car_west" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="220,160,0" />
+
+    
+    <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="100,100,100" />
+
+    
+    
+    <route id="n2s" edges="n2c c2s" />
+    <route id="n2e" edges="n2c c2e" />
+    <route id="n2w" edges="n2c c2w" />
+
+    
+    <route id="s2n" edges="s2c c2n" />
+    <route id="s2e" edges="s2c c2e" />
+    <route id="s2w" edges="s2c c2w" />
+
+    
+    <route id="e2w" edges="e2c c2w" />
+    <route id="e2n" edges="e2c c2n" />
+    <route id="e2s" edges="e2c c2s" />
+
+    
+    <route id="w2e" edges="w2c c2e" />
+    <route id="w2n" edges="w2c c2n" />
+    <route id="w2s" edges="w2c c2s" />
+
+    
+
+    
+    <flow id="flow_n_s" type="car_north" route="n2s" begin="0" end="3600" vehsPerHour="174" departSpeed="random" departPos="random_free" />
+    <flow id="flow_n_e" type="car_north" route="n2e" begin="0" end="3600" vehsPerHour="479" departSpeed="random" departPos="random_free" />
+    <flow id="flow_n_w" type="car_north" route="n2w" begin="0" end="3600" vehsPerHour="307" departSpeed="random" departPos="random_free" />
+
+    
+    <flow id="flow_s_n" type="car_south" route="s2n" begin="0" end="3600" vehsPerHour="332" departSpeed="random" departPos="random_free" />
+    <flow id="flow_s_e" type="car_south" route="s2e" begin="0" end="3600" vehsPerHour="132" departSpeed="random" departPos="random_free" />
+    <flow id="flow_s_w" type="car_south" route="s2w" begin="0" end="3600" vehsPerHour="175" departSpeed="random" departPos="random_free" />
+
+    
+    <flow id="flow_e_w" type="car_east" route="e2w" begin="0" end="3600" vehsPerHour="470" departSpeed="random" departPos="random_free" />
+    <flow id="flow_e_n" type="car_east" route="e2n" begin="0" end="3600" vehsPerHour="168" departSpeed="random" departPos="random_free" />
+    <flow id="flow_e_s" type="car_east" route="e2s" begin="0" end="3600" vehsPerHour="476" departSpeed="random" departPos="random_free" />
+
+    
+    <flow id="flow_w_e" type="car_west" route="w2e" begin="0" end="3600" vehsPerHour="332" departSpeed="random" departPos="random_free" />
+    <flow id="flow_w_n" type="car_west" route="w2n" begin="0" end="3600" vehsPerHour="180" departSpeed="random" departPos="random_free" />
+    <flow id="flow_w_s" type="car_west" route="w2s" begin="0" end="3600" vehsPerHour="494" departSpeed="random" departPos="random_free" />
+
+</routes>
