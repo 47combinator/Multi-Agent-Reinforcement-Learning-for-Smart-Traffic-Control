@@ -46,10 +46,10 @@ ppo:
 
 # ── Training run configuration ────────────────────────────────────────
 training:
-  total_timesteps: 500000   # total env steps (increase for production)
-  eval_freq: 10000          # steps between evaluation runs
+  total_timesteps: 2000000  # total env steps (increase for production)
+  eval_freq: 20000          # steps between evaluation runs
   n_eval_episodes: 5        # episodes per evaluation
-  checkpoint_freq: 50000    # steps between model saves
+  checkpoint_freq: 200000   # steps between model saves
   seed: 42                  # global random seed
 
 # ── Environment configuration ─────────────────────────────────────────
@@ -61,6 +61,6 @@ environment:
 
 # ── Reward function weights ───────────────────────────────────────────
 reward:
-  alpha: 0.4    # waiting time delta weight
-  beta: 0.3     # queue length delta weight
-  gamma: 0.3    # throughput weight
+  alpha: 0.2    # waiting time delta weight (reduced)
+  beta: 0.6     # queue length delta weight (increased for aggressive queue clearing)
+  gamma: 0.2    # throughput weight (reduced)

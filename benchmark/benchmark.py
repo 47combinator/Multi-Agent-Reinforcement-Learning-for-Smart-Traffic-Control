@@ -216,6 +216,8 @@ def run_dqn(n_episodes: int, seed: int, port: int = 8835) -> dict:
             return None
 
         cfg = dict(ENV_CONFIG)
+        if "eval_traci_port" in cfg:
+            cfg.pop("eval_traci_port")
         cfg["sumocfg_path"] = str(ROOT / "sumo_env" / "single_intersection.sumocfg")
         cfg["traci_port"]   = port
         cfg["use_gui"]      = False

@@ -1,133 +1,63 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Vehicle Routes for the single-intersection simulation.
-  
-  Strategy: Stochastic demand using <flow> elements.
-  Each flow continuously emits vehicles at a Poisson-like rate.
-  
-  vType "car":
-    - accel/decel: typical urban passenger car
-    - sigma: 0.5 = moderate driver imperfection (Krauss model)
-    - minGap: 2.5m (gap to leader)
-    - length: 5m
-  
-  Routes: every O-D pair through the center intersection.
-  Flows: 4 approaches × multiple destination routes.
-  
-  vehdist: vehicles are assigned routes with given probability weights.
--->
-<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 
-    <!-- ================================================================
-         VEHICLE TYPES — Coloured and named for visual clarity in SUMO-GUI
-         Each approach gets a distinct colour so you can easily track
-         where traffic is coming from.
-         ================================================================ -->
+    
 
-    <!-- North approach: Blue cars -->
-    <vType id="car_north" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
-           maxSpeed="10.0" guiShape="passenger" color="0,0,200"/>
+    
+    <vType id="car_north" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="0,0,200" />
 
-    <!-- South approach: Red cars -->
-    <vType id="car_south" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
-           maxSpeed="10.0" guiShape="passenger" color="200,0,0"/>
+    
+    <vType id="car_south" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="200,0,0" />
 
-    <!-- East approach: Green cars -->
-    <vType id="car_east" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
-           maxSpeed="10.0" guiShape="passenger" color="0,180,0"/>
+    
+    <vType id="car_east" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="0,180,0" />
 
-    <!-- West approach: Yellow/Orange cars -->
-    <vType id="car_west" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
-           maxSpeed="10.0" guiShape="passenger" color="220,160,0"/>
+    
+    <vType id="car_west" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="220,160,0" />
 
-    <!-- Generic fallback (used if needed) -->
-    <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5"
-           maxSpeed="10.0" guiShape="passenger" color="100,100,100"/>
+    
+    <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="10.0" guiShape="passenger" color="100,100,100" />
 
-    <!-- ================================================================
-         ROUTES
-         Every O-D pair through the center intersection.
-         Vehicles enter from one approach and exit via another.
-         ================================================================ -->
-    <!-- From North -->
-    <route id="n2s" edges="n2c c2s"/>
-    <route id="n2e" edges="n2c c2e"/>
-    <route id="n2w" edges="n2c c2w"/>
+    
+    
+    <route id="n2s" edges="n2c c2s" />
+    <route id="n2e" edges="n2c c2e" />
+    <route id="n2w" edges="n2c c2w" />
 
-    <!-- From South -->
-    <route id="s2n" edges="s2c c2n"/>
-    <route id="s2e" edges="s2c c2e"/>
-    <route id="s2w" edges="s2c c2w"/>
+    
+    <route id="s2n" edges="s2c c2n" />
+    <route id="s2e" edges="s2c c2e" />
+    <route id="s2w" edges="s2c c2w" />
 
-    <!-- From East -->
-    <route id="e2w" edges="e2c c2w"/>
-    <route id="e2n" edges="e2c c2n"/>
-    <route id="e2s" edges="e2c c2s"/>
+    
+    <route id="e2w" edges="e2c c2w" />
+    <route id="e2n" edges="e2c c2n" />
+    <route id="e2s" edges="e2c c2s" />
 
-    <!-- From West -->
-    <route id="w2e" edges="w2c c2e"/>
-    <route id="w2n" edges="w2c c2n"/>
-    <route id="w2s" edges="w2c c2s"/>
+    
+    <route id="w2e" edges="w2c c2e" />
+    <route id="w2n" edges="w2c c2n" />
+    <route id="w2s" edges="w2c c2s" />
 
-    <!-- ================================================================
-         FLOWS — Stochastic vehicle demand
-         
-         begin/end: simulation time in seconds
-         vehsPerHour: demand rate. We use different rates per approach
-                      to create realistic, asymmetric traffic pressure.
-         
-         North-South corridor: higher demand (main arterial)
-         East-West corridor:   moderate demand (side street)
-         
-         type="car" routes each flow to its primary through-movement.
-         Turn movements handled via additional lower-volume flows.
-         
-         'random' departLane/Pos gives natural spread.
-         ================================================================ -->
+    
 
-    <!-- North approach: BLUE cars — balanced with other approaches -->
-    <flow id="flow_n_s" type="car_north" route="n2s"
-          begin="0" end="3600" vehsPerHour="250"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_n_e" type="car_north" route="n2e"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_n_w" type="car_north" route="n2w"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
+    
+    <flow id="flow_n_s" type="car_north" route="n2s" begin="0" end="3600" vehsPerHour="174" departSpeed="random" departPos="random_free" />
+    <flow id="flow_n_e" type="car_north" route="n2e" begin="0" end="3600" vehsPerHour="479" departSpeed="random" departPos="random_free" />
+    <flow id="flow_n_w" type="car_north" route="n2w" begin="0" end="3600" vehsPerHour="307" departSpeed="random" departPos="random_free" />
 
-    <!-- South approach: RED cars — balanced with other approaches -->
-    <flow id="flow_s_n" type="car_south" route="s2n"
-          begin="0" end="3600" vehsPerHour="250"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_s_e" type="car_south" route="s2e"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_s_w" type="car_south" route="s2w"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
+    
+    <flow id="flow_s_n" type="car_south" route="s2n" begin="0" end="3600" vehsPerHour="332" departSpeed="random" departPos="random_free" />
+    <flow id="flow_s_e" type="car_south" route="s2e" begin="0" end="3600" vehsPerHour="132" departSpeed="random" departPos="random_free" />
+    <flow id="flow_s_w" type="car_south" route="s2w" begin="0" end="3600" vehsPerHour="175" departSpeed="random" departPos="random_free" />
 
-    <!-- East approach: GREEN cars (side street, moderate volume) -->
-    <flow id="flow_e_w" type="car_east" route="e2w"
-          begin="0" end="3600" vehsPerHour="250"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_e_n" type="car_east" route="e2n"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_e_s" type="car_east" route="e2s"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
+    
+    <flow id="flow_e_w" type="car_east" route="e2w" begin="0" end="3600" vehsPerHour="470" departSpeed="random" departPos="random_free" />
+    <flow id="flow_e_n" type="car_east" route="e2n" begin="0" end="3600" vehsPerHour="168" departSpeed="random" departPos="random_free" />
+    <flow id="flow_e_s" type="car_east" route="e2s" begin="0" end="3600" vehsPerHour="476" departSpeed="random" departPos="random_free" />
 
-    <!-- West approach: YELLOW/ORANGE cars (side street, moderate volume) -->
-    <flow id="flow_w_e" type="car_west" route="w2e"
-          begin="0" end="3600" vehsPerHour="250"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_w_n" type="car_west" route="w2n"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
-    <flow id="flow_w_s" type="car_west" route="w2s"
-          begin="0" end="3600" vehsPerHour="60"
-          departSpeed="random" departPos="random_free"/>
+    
+    <flow id="flow_w_e" type="car_west" route="w2e" begin="0" end="3600" vehsPerHour="332" departSpeed="random" departPos="random_free" />
+    <flow id="flow_w_n" type="car_west" route="w2n" begin="0" end="3600" vehsPerHour="180" departSpeed="random" departPos="random_free" />
+    <flow id="flow_w_s" type="car_west" route="w2s" begin="0" end="3600" vehsPerHour="494" departSpeed="random" departPos="random_free" />
 
 </routes>

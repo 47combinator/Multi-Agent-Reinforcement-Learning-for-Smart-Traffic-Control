@@ -145,12 +145,21 @@ class RewardCalculator:
         )
         reward_wait = -self.alpha * (delta_wait / NORM_DELTA_WAIT)
 
-        # ── Component 2: Queue length delta ─────────────────────────────
+        # ── Component 2: Queue length delta and absolute penalty ─────────
         delta_queue = (
             current_metrics["total_queue"]
             - self._prev_metrics["total_queue"]
         )
         reward_queue = -self.beta * (delta_queue / NORM_DELTA_QUEUE)
+        
+        # Add aggressive nonlinear penalty for long queues
+        # If queue exceeds 10 vehicles, penalty scales quadratically
+        if current_metrics["total_queue"] > 10:
+            excess_queue = current_metrics["total_queue"] - 10
+            # Scale down the penalty so it doesn't completely overwhelm everything,
+            # but is still significant (e.g. queue of 20 = 100/100 = 1.0 penalty)
+            queue_penalty = (excess_queue ** 2) / 100.0
+            reward_queue -= (self.beta * queue_penalty)
 
         # ── Component 3: Throughput ──────────────────────────────────────
         # getArrivedNumber() returns CUMULATIVE arrivals since sim start.

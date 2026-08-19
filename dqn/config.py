@@ -31,9 +31,9 @@ ENV_CONFIG = {
     "use_gui": False,
     "seed": 42,
     # Reward weights
-    "alpha": 0.4,           # Waiting time penalty weight
-    "beta": 0.3,            # Queue length penalty weight
-    "gamma": 0.3            # Throughput reward weight
+    "alpha": 0.2,           # Waiting time penalty weight
+    "beta": 0.6,            # Queue length penalty weight
+    "gamma": 0.2            # Throughput reward weight
 }
 
 # DQN Hyperparameters
@@ -47,8 +47,8 @@ DQN_CONFIG = {
     "use_soft_update": True,        # Set True for soft update, False for hard update every target_update_freq steps
     "epsilon_start": 1.0,
     "epsilon_end": 0.01,
-    "epsilon_decay": 0.995,         # Epsilon decay rate per episode
-    "num_episodes": 15,
+    "epsilon_decay": 0.9995,         # Epsilon decay rate per episode (adjusted for 10000 episodes)
+    "num_episodes": 10000,
     "max_steps": 1000,              # Max steps per episode to override env limit if needed
     "optimizer": "Adam",
     "grad_clip": 1.0,               # Gradient clipping threshold
@@ -77,8 +77,8 @@ PPO_CONFIG = {
 }
 
 # General settings
-LOG_FREQ = 1                        # Logging to console frequency (episodes)
-EVAL_FREQ = 10                      # Evaluation frequency (episodes)
+LOG_FREQ = 100                      # Logging to console frequency (episodes)
+EVAL_FREQ = 500                     # Evaluation frequency (episodes)
 N_EVAL_EPISODES = 5                 # Number of episodes for evaluation
-CHECKPOINT_FREQ = 100               # Checkpoint save frequency (episodes)
-EARLY_STOPPING_PATIENCE = 15        # Number of evaluations with no improvement before stopping
+CHECKPOINT_FREQ = 1000              # Checkpoint save frequency (episodes)
+EARLY_STOPPING_PATIENCE = 50        # Number of evaluations with no improvement before stopping

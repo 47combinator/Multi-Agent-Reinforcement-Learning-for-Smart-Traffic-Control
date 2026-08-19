@@ -18,10 +18,10 @@ qlearning:
 
 # ── Training run configuration ──────────────────────────────────────
 training:
-  total_episodes: 1500      # total episodes to train for
-  eval_freq: 50             # episodes between evaluation runs
+  total_episodes: 10000     # total episodes to train for
+  eval_freq: 500            # episodes between evaluation runs
   n_eval_episodes: 5        # episodes per evaluation
-  checkpoint_freq: 100      # episodes between model saves
+  checkpoint_freq: 1000     # episodes between model saves
   seed: 42                  # global random seed
 
 # ── Environment configuration ───────────────────────────────────────
@@ -33,6 +33,6 @@ environment:
 
 # ── Reward function weights ─────────────────────────────────────────
 reward:
-  alpha: 0.4    # waiting time delta weight
-  beta: 0.3     # queue length delta weight
-  gamma: 0.3    # throughput weight
+  alpha: 0.2    # waiting time delta weight (reduced)
+  beta: 0.6     # queue length delta weight (increased)
+  gamma: 0.2    # throughput weight (reduced)

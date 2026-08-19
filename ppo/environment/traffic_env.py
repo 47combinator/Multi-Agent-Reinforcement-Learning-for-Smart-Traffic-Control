@@ -59,6 +59,8 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 from pathlib import Path
+import xml.etree.ElementTree as ET
+import random
 
 # ---------------------------------------------------------------------------
 # TraCI import — requires SUMO_HOME to be set
@@ -440,10 +442,37 @@ class TrafficEnv(gym.Env):
             # In headless training mode: start immediately for speed
             sumo_cmd += ["--start"]
 
+        # Randomize traffic before starting SUMO
+        self._generate_random_traffic()
+
         # traci.start() both starts SUMO and opens the TraCI socket.
         # label=str(port) allows multiple simultaneous environments.
         traci.start(sumo_cmd, port=self.traci_port, label=str(self.traci_port))
         self._sumo_running = True
+
+    def _generate_random_traffic(self) -> None:
+        """
+        Dynamically randomize the traffic flow for this episode.
+        Reads the base .rou.xml file, randomizes vehsPerHour for each <flow>,
+        and overwrites it or saves to a temp file (here we just overwrite to keep it simple).
+        """
+        rou_path = Path(self.sumocfg_path).parent / "single_intersection.rou.xml"
+        if not rou_path.exists():
+            return
+            
+        tree = ET.parse(rou_path)
+        root = tree.getroot()
+        
+        # Use the environment's seed, modified by step count to ensure variety across episodes
+        rng = random.Random(self._seed + self._step_count)
+        
+        for flow in root.findall("flow"):
+            # Base flow rate could be anything, let's randomize between 50 and 500
+            # for varied demand (light to heavy)
+            new_rate = rng.randint(50, 500)
+            flow.set("vehsPerHour", str(new_rate))
+            
+        tree.write(rou_path)
 
     def _close_sumo(self) -> None:
         """
