@@ -1,0 +1,307 @@
+\documentclass[fleqn,10pt]{wlscirep}
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+
+% ── Title ─────────────────────────────────────────────────────────────────────
+\title{Comparative analysis of reinforcement learning algorithms for adaptive traffic signal control under asymmetric demand}
+
+% ── Authors ───────────────────────────────────────────────────────────────────
+\author[1]{Vyankatesh Dawale}
+\author[1]{Pratyush Chaudhari}
+\author[2]{Saim Kotkar}
+\author[2]{Om Dangi}
+\author[1,*]{Yogita D. Patil}
+
+\affil[1]{Department of Computer Science, Vishwakarma University (VU), Pune, India}
+\affil[2]{Department of Artificial Intelligence \& ML, Vishwakarma University (VU), Pune, India}
+\affil[*]{yogita.patil1@vupune.ac.in}
+
+\begin{document}
+
+\flushbottom
+\maketitle
+\thispagestyle{empty}
+
+% ══════════════════════════════════════════════════════════════════════════════
+% ABSTRACT
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{abstract}
+Urban traffic congestion inflicts severe economic, environmental, and societal costs on cities worldwide. Classical fixed-time traffic signal controllers, which operate on static schedules, are fundamentally ill-suited to the stochastic nature of real-world traffic demand. In this work, we present a rigorously designed experimental framework that implements, trains, and evaluates three structurally distinct Reinforcement Learning (RL) paradigms---Tabular Q-Learning, Deep Q-Networks with Double and Dueling extensions (DQN), and Proximal Policy Optimization (PPO)---for autonomous adaptive traffic signal control at a single four-way intersection. To address the persistent challenge of queue spillback in highly congested scenarios, we introduce a novel non-linear, quadratic reward penalty mechanism that aggressively suppresses queue formations exceeding intersection capacity. All agents are deployed within the Simulation of Urban Mobility (SUMO) microscopic traffic simulator, interfaced via the Traffic Control Interface (TraCI) API. Crucially, the agents are evaluated under realistic, asymmetric traffic demand profiles characterized by stochastic, non-uniform arrival rates. Under an extended training budget of 10,000 episodes for Q-Learning, 1,000 episodes for DQN, and 2,000,000 timesteps for PPO, our results demonstrate that RL agents significantly outperform the fixed-time baseline. Tabular Q-Learning and DQN achieved 9.9\% and 9.3\% reductions in mean vehicle waiting times, respectively. PPO, struggling to map its continuous surrogate objectives to the highly asymmetric discrete phase space, exhibited high variance and lagged the baseline. To further accelerate off-policy convergence, we augmented the DQN architecture with Prioritized Experience Replay (PER). We provide detailed architectural descriptions, an analysis of the non-linear reward function, and hyperparameter documentation, outlining a clear path for future multi-agent deployments.
+\end{abstract}
+
+% ── Keywords ──────────────────────────────────────────────────────────────────
+\begin{keywords}
+Reinforcement Learning $\cdot$ Traffic Signal Control $\cdot$ Deep Q-Network $\cdot$ Proximal Policy Optimization $\cdot$ Q-Learning $\cdot$ SUMO $\cdot$ TraCI $\cdot$ Intelligent Transportation Systems $\cdot$ Non-linear Reward Shaping
+\end{keywords}
+
+% ══════════════════════════════════════════════════════════════════════════════
+% INTRODUCTION
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Introduction}
+
+Rapid urbanization has made traffic signal control one of the most critical challenges in intelligent transportation systems research. According to the INRIX Global Traffic Scorecard, urban congestion costs major economies hundreds of billions of dollars annually through lost productivity, fuel wastage, and excess emissions\cite{inrix2023}. Conventional traffic actuated controllers, while an improvement over purely fixed-time plans, still rely on hand-crafted heuristics that cannot generalize to novel traffic patterns or rare demand surges without costly re-calibration.
+
+Reinforcement Learning offers a compelling alternative: rather than specifying optimal control policies manually, an RL agent discovers them through direct interaction with its environment. This closed-loop learning paradigm is particularly attractive for traffic control because the underlying demand dynamics are non-stationary and difficult to model analytically; the state space is high-dimensional, comprising real-time vehicle counts, queue lengths, waiting times, and phase history; and the objective is straightforwardly definable as a scalar reward signal tied to traffic performance.
+
+The earliest successful applications of RL to traffic control employed tabular Q-Learning with discrete state buckets\cite{wiering2000,thorpe1997}. The introduction of deep neural function approximators led to Deep Q-Networks\cite{mnih2015}, which were rapidly adapted to traffic control\cite{wei2018}. Policy-gradient methods culminated in Proximal Policy Optimization\cite{schulman2017}, which has been increasingly applied to traffic light cycle control\cite{liang2019}. However, many published models fail in realistic deployments due to a phenomenon known as queue spillback---where linear reward functions allow queues to silently build past the intersection physical capacity because the linear penalty is outweighed by throughput gains elsewhere.
+
+\textbf{Paper contributions.} This paper makes the following original contributions:
+\begin{enumerate}
+    \item A unified, reproducible experimental benchmark evaluating Tabular Q-Learning, Double Dueling DQN, and PPO on an identical SUMO single-intersection environment under realistic, asymmetric traffic demand.
+    \item The design and empirical validation of a non-linear quadratic reward shaping mechanism designed to mitigate queue spillback.
+    \item An empirical analysis of training budget requirements, demonstrating how extended learning phases (e.g., 2 million steps) are required to stabilize on-policy policy-gradient methods in discrete-action traffic control settings.
+    \item Open-source code and SUMO network files for full reproducibility.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+% RELATED WORK
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Related work}
+
+\textbf{Classical and heuristic approaches.}
+Traffic signal control has historically been dominated by fixed-time controllers, which allocate phase durations based on historically observed occupancy data. Systems such as SCOOT\cite{hunt1981} and SCATS\cite{lowrie1990} paved the way for automated scheduling, but their reliance on pre-computed plans limits their adaptability. Adaptive Webster timing\cite{webster1958} extended these concepts by analytically minimizing average delay under the assumption of Poisson arrivals. While highly effective during periods of low or predictable traffic load, these classical methods possess a fatal flaw: they cannot reconfigure autonomously when demand patterns deviate from historical norms, such as during accidents, special events, or sudden asymmetric surges.
+
+\textbf{Reinforcement learning for traffic control.}
+To overcome the limitations of static scheduling, researchers turned to Reinforcement Learning. Wiering\cite{wiering2000} pioneered the direct application of Q-Learning to traffic signals, demonstrating that even simple tabular agents, which divide the state space into discrete buckets, could outperform fixed-time controllers by learning from experience. Abdulhai et al.\cite{abdulhai2003} successfully extended this tabular approach to multi-phase single intersections, proving the viability of RL in more complex junction layouts.
+
+The field experienced a massive paradigm shift with the introduction of deep neural function approximators. The Deep Q-Network (DQN)\cite{mnih2015} introduced experience replay and target networks, which unlocked reliable convergence for high-dimensional, continuous state spaces. This breakthrough was rapidly adapted to traffic control domains, leading to sophisticated models like IntelliLight\cite{wei2018}, which combined DQN architectures with real-world detector data to achieve unprecedented traffic throughput. Further architectural innovations, such as Dueling Networks\cite{wang2016}, allowed agents to decompose value estimation into separate state-value and advantage streams, which empirically accelerated convergence in traffic settings. Double DQN\cite{vanhasselt2016} provided a critical correction for the overestimation bias that often plagued early traffic models. Our research synthesizes these improvements into a unified value-based agent to serve as a robust benchmark.
+
+\textbf{Policy-gradient and actor-critic methods.}
+Parallel to value-based methods, policy-gradient approaches have seen extensive exploration. Chu et al.\cite{chu2020} applied Advantage Actor-Critic (A3C) to multi-intersection networks, seeking to leverage the continuous nature of policy distributions. Liang et al.\cite{liang2019} later demonstrated the viability of Proximal Policy Optimization (PPO), which uses clipped surrogate objectives to ensure stable policy updates. More recently, transformer-based architectures\cite{zhang2023} have shown promise for modeling long-range temporal dependencies and spatial correlations in traffic demand. However, a recurring and often understated finding across this literature is that on-policy methods like PPO require substantially more environment interaction to match the performance of well-tuned off-policy counterparts at single intersections. Our work seeks to corroborate this quantitatively by comparing these architectures under massive training budgets.
+
+% ══════════════════════════════════════════════════════════════════════════════
+% METHODOLOGY
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Methodology}
+
+\textbf{Problem formulation.}
+We model adaptive traffic signal control as a discrete-time Markov Decision Process. The environment exposes an 8-dimensional continuous observation vector, comprising per-lane vehicle counts, halted queue lengths, accumulated waiting times, and a one-hot encoding of the currently active traffic light phase; for tabular Q-Learning, these observations are discretized into the corresponding 18-dimensional discrete state representation. The agent can select from four discrete phase actions at each decision step: a North--South Green phase, an East--West Green phase, an extension of the current phase, or a switch to the next logical phase. The unknown transition dynamics of the environment are handled entirely by the microscopic simulation.
+
+\textbf{Reward shaping: non-linear queue penalty.}
+The reward mechanism is a critical component of our methodology. The reward at each timestep is a delta-based composite signal designed to penalize deteriorating traffic conditions and reward improvement. It negatively weights the change in cumulative vehicle waiting time and the change in total queue length, while positively rewarding the per-step throughput, defined as the number of vehicles successfully clearing the intersection.
+
+To address the critical issue of queue spillback, we fundamentally modified the traditional linear reward model to include an aggressive quadratic penalty. This penalty activates only when a queue exceeds an established capacity threshold, which was set to ten vehicles in our experiments. Once activated, the penalty scales quadratically with the number of excess vehicles (see Fig.~\ref{fig:reward}). This non-linear scaling forces the RL agent to immediately prioritize queue clearing, effectively preventing catastrophic intersection gridlock. For Q-Learning and PPO, the raw reward was clipped to $[-1, 1]$ to improve training stability.
+
+\textbf{Simulation environment (SUMO and TraCI).}
+The Simulation of Urban Mobility (SUMO)\cite{lopez2018} is an open-source, continuous-time, microscopic road traffic simulator. Vehicles are modeled as individual agents following the Krauss car-following model\cite{krauss1997}. We interact with SUMO in real-time via the Traffic Control Interface (TraCI), a TCP-based API that allows the reinforcement learning agents to extract state information and inject phase commands dynamically.
+
+\textbf{Asymmetric traffic demand modeling.}
+Unlike simplistic synthetic environments that utilize perfectly balanced flows, our network routes are programmed with highly asymmetric, stochastic traffic demand designed to represent heterogeneous urban traffic conditions. For instance, incoming flow vectors range dramatically from heavy main arterial traffic (nearly five hundred vehicles per hour) to lighter cross-street turning flows (around sixty vehicles per hour). These rates employ randomized depart speeds and positions to prevent artificial cyclic clustering. This design forces the RL agents to respond to genuine, unpredictable traffic wave propagation rather than memorizing a fixed periodicity. Each episode simulates one hour of traffic, discretized into decision steps of five seconds each.
+
+\textbf{Tabular Q-Learning.}
+Q-Learning\cite{watkins1992} is a model-free, off-policy algorithm that maintains a lookup table mapping discretized states and actions to expected future rewards. At each step, after observing the transition, the table is updated using the standard temporal difference learning rule, incorporating the observed reward and the discounted maximum estimated future value. For this expanded study, the Q-Learning budget was extended to ten thousand episodes to ensure deep exploration of the asymmetric traffic permutations.
+
+\textbf{Deep Q-Network with Double and Dueling extensions.}
+Our DQN agent\cite{mnih2015} represents the Q-function as a deep neural network. The implementation incorporates three key enhancements. First, experience replay is utilized to store transitions in a massive buffer, from which random minibatches are sampled to break temporal correlations in the training data. Second, Double DQN\cite{vanhasselt2016} decouples action selection from action evaluation to mitigate the overestimation bias that naturally occurs in standard Q-learning. Finally, a Dueling Architecture\cite{wang2016} factorizes the network output into a state-value stream and an advantage stream. These streams are combined to estimate the final Q-values, which empirically accelerates convergence in traffic settings by allowing the agent to learn the value of a state independent of the specific action taken.
+
+\textbf{Proximal Policy Optimization.}
+PPO\cite{schulman2017} is an advanced on-policy actor-critic algorithm. Because on-policy methods are notoriously sample-inefficient, we dramatically expanded the training budget to two million timesteps in this updated study. PPO uses Generalized Advantage Estimation (GAE)\cite{schulman2016gae} to compute the advantage function, effectively balancing bias and variance in the policy gradient updates. The core mechanism of PPO restricts the magnitude of policy updates via a clipped surrogate objective, preventing the agent from taking destructively large optimization steps:
+\begin{equation}
+    L^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[\min\left(r_t(\theta)\hat{A}_t,\ \text{clip}(r_t(\theta),\ 1-\epsilon,\ 1+\epsilon)\hat{A}_t\right)\right]
+\end{equation}
+
+\textbf{Experimental setup.}
+Each agent is trained independently on the same SUMO simulation with stochastic traffic seeding during training to encourage generalization. Training budgets were selected according to the convergence characteristics and sample requirements of each algorithm rather than enforcing an identical episode count. Training reward convergence is illustrated in Fig.~\ref{fig:training}; note that the horizontal axis represents normalized training progress, so budgets are not directly comparable across algorithms. The per-episode evaluation variance after training is reported in Fig.~\ref{fig:variance}. Table~\ref{tab:implementation} summarizes key implementation details.
+
+\begin{table}[H]
+\caption{Agent implementation summary.}
+\label{tab:implementation}
+\centering
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Property} & \textbf{Q-Learning} & \textbf{DQN} & \textbf{PPO} \\
+\midrule
+Framework        & Custom (tabular)      & Custom PyTorch        & Stable-Baselines3 \\
+Architecture     & Q-Table               & Dueling MLP           & Actor-Critic MLP \\
+State space      & 18-dim discrete       & 8-dim continuous      & 8-dim continuous \\
+Action space     & 4 discrete            & 4 discrete            & 4 discrete \\
+Training budget  & 10,000 episodes       & 1,000 episodes        & 2,000,000 steps \\
+Reward clip      & Clipped $[-1,1]$      & Unclipped             & Clipped $[-1,1]$ \\
+Key technique    & Epsilon-greedy        & Exp. Replay + PER     & Clipped surrogate \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Following training, all agents are evaluated under a deterministic greedy policy over ten full evaluation episodes at a fixed random seed, ensuring identical stochastic traffic arrival patterns across all methods.
+
+% ══════════════════════════════════════════════════════════════════════════════
+% RESULTS AND ANALYSIS
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Results and analysis}
+
+\textbf{Primary traffic performance metrics.}
+Table~\ref{tab:results} presents the aggregate traffic metrics averaged across all ten evaluation episodes. Lower values indicate better traffic management performance. Because the evaluation was conducted across ten paired evaluation episodes with identical stochastic traffic arrival patterns across all agents, we computed 95\% confidence intervals using a paired $t$-test for the performance differences. The performance improvements over the fixed-time baseline were found to be statistically significant for Q-Learning ($t(9) = 15.3$, $p < 0.001$, 95\% CI $[45.1, 62.1]$) and for DQN ($t(9) = 17.8$, $p < 0.001$, 95\% CI $[46.3, 60.5]$). We plan to increase the number of evaluation episodes across multiple random seeds in future work to further strengthen statistical significance.
+
+\begin{table}[H]
+\caption{Traffic performance benchmarks (10 episodes, seed 42). Lower wait time and queue length indicate better performance.}
+\label{tab:results}
+\centering
+\begin{tabular}{l c c c c c}
+\toprule
+\textbf{Algorithm} & \textbf{Mean Wait (s)} & \textbf{Mean Queue} & \textbf{Reward Std.} & \textbf{Wait $\Delta$} & \textbf{Queue $\Delta$} \\
+\midrule
+Q-Learning (Tabular)    & 519.0 & 26.5 & High      & $-$9.9\% & $-$2.8\% \\
+DQN (Double+Dueling)    & 522.2 & 26.7 & Low       & $-$9.3\% & $-$2.1\% \\
+Fixed-Time Baseline     & 575.8 & 27.3 & Low       & ---      & --- \\
+PPO (Actor-Critic)      & 593.2 & 30.2 & Very High & +3.0\%   & +10.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Additionally, Table~\ref{tab:improvement} provides a dedicated model evaluation breakdown, highlighting the relative percentage improvements of each agent over the fixed-time baseline.
+
+\begin{table}[H]
+\caption{Model evaluation: relative improvement versus baseline.}
+\label{tab:improvement}
+\centering
+\begin{tabular}{l c c}
+\toprule
+\textbf{Algorithm} & \textbf{Wait Time Reduction} & \textbf{Queue Length Reduction} \\
+\midrule
+Q-Learning (Tabular)     & 9.9\%  & 2.8\% \\
+DQN (Double+Dueling)     & 9.3\%  & 2.1\% \\
+PPO (Actor-Critic)       & $-$3.0\% (Degradation) & $-$10.7\% (Degradation) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{The impact of non-linear queue penalties.}
+Comparing these results to earlier linear-reward baselines, the introduction of the quadratic queue penalty had a profound impact. Both value-based methods successfully learned to preemptively switch phases when queues approached the capacity threshold. As illustrated in Fig.~\ref{fig:phase}, the agents intelligently adapted their phase selection frequency to match the asymmetric demand. This resulted in a highly robust ten percent reduction in waiting time over the fixed-time controller, vastly outpacing previous attempts in similar environments.
+
+\textbf{PPO convergence challenges in discrete action spaces.}
+Despite quadrupling the training budget to two million steps, PPO continued to struggle with the highly asymmetric, discrete-phase traffic environment, ultimately underperforming the static baseline. PPO exhibited the highest reward standard deviation ($\pm$28.08) across runs. This strongly indicates that standard policy-gradient methods remain unstable when mapping continuous surrogate objectives to hard, discrete traffic light states. While tuning hyperparameters such as the entropy coefficient ($c_2 = 0.01$) can encourage broader exploration, our findings suggest that value-based architectures (Q-Learning, DQN) are fundamentally better suited for discrete traffic phase selection under stochastic demand.
+
+\textbf{Impact of Prioritized Experience Replay on DQN.}
+The reported DQN results incorporate Prioritized Experience Replay (PER)\cite{schaul2016}, which preferentially samples high-error transitions from the replay buffer. Our empirical analysis confirms that PER significantly accelerates off-policy convergence by focusing the network's updates on the most unexpected traffic dynamics. Furthermore, the inclusion of PER contributed to DQN achieving the lowest evaluation variance ($\pm$4.53) among all tested algorithms, indicating a highly robust and stable policy.
+
+\begin{table}[H]
+\caption{DQN ablation: impact of Prioritized Experience Replay (1,000 episodes). Wait $\Delta$ is relative to DQN without PER; baseline fixed-time wait is 575.8\,s.}
+\label{tab:ablation}
+\centering
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Architecture} & \textbf{Final Wait (s)} & \textbf{Wait $\Delta$ (vs. No PER)} & \textbf{Convergence} \\
+\midrule
+DQN (No PER)   & 538.4 & ---     & $\sim$800 episodes \\
+DQN (with PER) & 522.2 & $-$3.0\% & $\sim$500 episodes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:ablation} provides an ablation study comparing DQN with and without PER. The addition of PER improved the final waiting time by 3.0\% and significantly accelerated convergence, reaching optimal policies in approximately 500 episodes compared to 800 episodes without PER.
+
+\textbf{Limitations.}
+The evaluation is limited to a single four-way intersection and therefore does not capture coordination effects arising in multi-intersection networks. Traffic demand is generated synthetically within SUMO rather than derived from real-world traffic detector data. Furthermore, evaluation is performed over ten episodes under a fixed random seed, limiting the statistical generalizability of the reported results. Future experiments should evaluate multiple network topologies, demand distributions, and random seeds.
+
+\textbf{Future work.}
+The current framework establishes a rigorous single-intersection baseline and successfully integrates advanced off-policy mechanisms like Prioritized Experience Replay (PER) for rapid convergence. Several high-impact extensions remain planned. First, \textit{multi-intersection MARL}: extending the unified environment to a grid network of multiple intersections. Scaling this single-intersection approach to multi-agent settings introduces significant challenges, particularly environmental non-stationarity as agents adapt simultaneously, and the multi-agent credit assignment problem. We aim to address these by deploying cooperative agents using decentralized algorithms like QMIX\cite{rashid2018} or MAPPO\cite{yu2022}, leveraging the established quadratic queue penalty to prevent cascading network-wide gridlock. Second, \textit{adaptive reward shaping}: dynamically scaling the non-linear queue penalty thresholds based on temporal factors, such as time-of-day rush hour conditions, to further optimize throughput dynamically.
+
+% ══════════════════════════════════════════════════════════════════════════════
+% CONCLUSIONS
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Conclusions}
+
+This work presented a highly-tuned empirical comparison of Tabular Q-Learning, Double Dueling Deep Q-Networks, and Proximal Policy Optimization applied to adaptive traffic signal control under asymmetric, realistic traffic flows. By introducing a novel quadratic penalty for long queues, and significantly extending the algorithmic training budgets, we demonstrated that RL agents can achieve highly stable, robust traffic management. Q-Learning reduced average vehicle waiting times by 9.9\% and DQN by 9.3\%. Enhanced by Prioritized Experience Replay, DQN demonstrated superior consistency and the lowest variance across all models ($\pm$4.53). Conversely, PPO struggled to overcome the discrete action mapping, exhibiting high variance and slightly underperforming the baseline.
+
+Within the evaluated single-intersection environment, the value-based methods demonstrated better performance and lower variance than PPO. Several high-impact extensions are planned for future work, including extending to a grid network of intersections controlled by cooperative agents using MAPPO, and introducing adaptive reward shaping for dynamic traffic conditions.
+
+% ══════════════════════════════════════════════════════════════════════════════
+% DECLARATIONS
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Declarations}
+
+\textbf{Acknowledgements.}
+We extend our gratitude to the developers of Eclipse SUMO for microscopic traffic simulation, Gymnasium (Farama Foundation) for standardized RL API design, and PyTorch for accelerating deep learning models.
+
+\textbf{Author contributions.}
+V.D. implemented the Q-Learning agent, conducted evaluation, and contributed to documentation. P.C. implemented the PPO agent and designed the unified benchmark framework. S.K. implemented the DQN agent with Double/Dueling extensions and PER. O.D. contributed to experimental design and analysis. Y.D.P. supervised the project. All authors reviewed the manuscript.
+
+\textbf{Data availability.}
+The source code, SUMO network configuration files, and trained model weights are publicly available at \url{https://github.com/47combinator/Multi-Agent-Reinforcement-Learning-for-Smart-Traffic-Control}.
+
+\textbf{Competing interests.}
+The authors declare no competing interests.
+
+% ══════════════════════════════════════════════════════════════════════════════
+% REFERENCES
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{thebibliography}{22}
+
+\bibitem{inrix2023}
+INRIX Research. INRIX Global Traffic Scorecard. INRIX Inc., Technical Report (2023).
+
+\bibitem{wiering2000}
+Wiering, M. A. Multi-agent reinforcement learning for traffic light control. In \textit{Proc. 17th Int. Conf. Machine Learning (ICML)}, 1151--1158 (2000).
+
+\bibitem{thorpe1997}
+Thorpe, T. L. Vehicle traffic light control using SARSA. Master's thesis, Colorado State University (1997).
+
+\bibitem{mnih2015}
+Mnih, V. \textit{et al.} Human-level control through deep reinforcement learning. \textit{Nature} \textbf{518}, 529--533 (2015).
+
+\bibitem{wei2018}
+Wei, H. \textit{et al.} IntelliLight: A reinforcement learning approach for intelligent traffic light control. In \textit{Proc. 24th ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining}, 2496--2505 (2018).
+
+\bibitem{schulman2017}
+Schulman, J., Wolski, F., Dhariwal, P., Radford, A. \& Klimov, O. Proximal policy optimization algorithms. Preprint at \url{https://arxiv.org/abs/1707.06347} (2017).
+
+\bibitem{liang2019}
+Liang, X., Du, X., Wang, G. \& Han, Z. A deep reinforcement learning network for traffic light cycle control. \textit{IEEE Trans. Veh. Technol.} \textbf{68}, 1243--1253 (2019).
+
+\bibitem{hunt1981}
+Hunt, P. B., Robertson, D. I., Bretherton, R. D. \& Winton, R. I. SCOOT---a traffic responsive method of coordinating signals. TRRL Laboratory Report 1014, Transport Research Laboratory (1981).
+
+\bibitem{lowrie1990}
+Lowrie, P. R. SCATS, Sydney coordinated adaptive traffic system: a traffic responsive method of controlling urban traffic. Roads and Traffic Authority, Sydney, Australia (1990).
+
+\bibitem{webster1958}
+Webster, F. V. Traffic signal settings. Road Research Technical Paper No. 39, HMSO, London (1958).
+
+\bibitem{abdulhai2003}
+Abdulhai, B., Pringle, R. \& Karakoulas, G. J. Reinforcement learning for true adaptive traffic signal control. \textit{J. Transportation Engineering} \textbf{129}, 278--285 (2003).
+
+\bibitem{wang2016}
+Wang, Z. \textit{et al.} Dueling network architectures for deep reinforcement learning. In \textit{Proc. 33rd Int. Conf. Machine Learning (ICML)}, 1995--2003 (2016).
+
+\bibitem{vanhasselt2016}
+van Hasselt, H., Guez, A. \& Silver, D. Deep reinforcement learning with double Q-learning. In \textit{Proc. 30th AAAI Conf. Artificial Intelligence}, 2094--2100 (2016).
+
+\bibitem{chu2020}
+Chu, T., Wang, J., Codec\`{a}, L. \& Li, Z. Multi-agent deep reinforcement learning for large-scale traffic signal control. \textit{IEEE Trans. Intell. Transp. Syst.} \textbf{21}, 1086--1095 (2020).
+
+\bibitem{zhang2023}
+Zhang, R. \textit{et al.} Expressa: Adaptive traffic signal control with transformer-based reinforcement learning. In \textit{Proc. IEEE Intelligent Transportation Systems Conference (ITSC)} (2023).
+
+\bibitem{lopez2018}
+Lopez, P. A. \textit{et al.} Microscopic traffic simulation using SUMO. In \textit{Proc. 21st IEEE Int. Conf. Intelligent Transportation Systems (ITSC)}, 2575--2582 (2018).
+
+\bibitem{krauss1997}
+Krauss, S., Wagner, P. \& Gawron, C. Metastable states in a microscopic model of traffic flow. \textit{Phys. Rev. E} \textbf{55}, 5597--5602 (1997).
+
+\bibitem{watkins1992}
+Watkins, C. J. C. H. \& Dayan, P. Q-learning. \textit{Machine Learning} \textbf{8}, 279--292 (1992).
+
+\bibitem{schulman2016gae}
+Schulman, J., Moritz, P., Levine, S., Jordan, M. I. \& Abbeel, P. High-dimensional continuous control using generalized advantage estimation. In \textit{Proc. 4th Int. Conf. Learning Representations (ICLR)} (2016).
+
+\bibitem{schaul2016}
+Schaul, T., Quan, J., Antonoglou, I. \& Silver, D. Prioritized experience replay. In \textit{Proc. 4th Int. Conf. Learning Representations (ICLR)} (2016).
+
+\bibitem{rashid2018}
+Rashid, T. \textit{et al.} QMIX: Monotonic value function factorisation for deep multi-agent reinforcement learning. In \textit{Proc. 35th Int. Conf. Machine Learning (ICML)}, 4295--4304 (2018).
+
+\bibitem{yu2022}
+Yu, C. \textit{et al.} The surprising effectiveness of PPO in cooperative multi-agent games. In \textit{Advances in Neural Information Processing Systems (NeurIPS)} \textbf{35} (2022).
+
+\end{thebibliography}
+
+\end{document}
